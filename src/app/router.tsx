@@ -5,6 +5,7 @@ import { HobbyDetailPage } from "../pages/HobbyDetailPage";
 import { HobbiesPage } from "../pages/HobbiesPage";
 import { HomePage } from "../pages/HomePage";
 import { NotFoundPage } from "../pages/NotFoundPage";
+import { TestReportPage } from "../pages/TestReportPage";
 
 export const appRouter = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ export const appRouter = createBrowserRouter([
       {
         path: "hobbies/:slug",
         element: <HobbyDetailPage />
+      },
+      {
+        path: "report",
+        element: <TestReportPage />
       }
     ]
   }

@@ -25,3 +25,21 @@ test("趣味詳細がランニングの内容を表示する", async ({ page }) 
   await expect(page.getByText("10kmを気持ちよく走れるペース作り")).toBeVisible();
   await expect(page.getByText("ルートメモ")).toBeVisible();
 });
+
+test("フッターの E2E テストレポートリンクが /report へ遷移する", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("link", { name: "E2E テストレポート" }).click();
+
+  await expect(page).toHaveURL("/report");
+  await expect(page.getByRole("heading", { name: "E2E テストレポート" })).toBeVisible();
+});
+
+test("テストレポートページが最新レポートへのリンクを持つ", async ({ page }) => {
+  await page.goto("/report");
+
+  await expect(page.getByRole("heading", { name: "E2E テストレポート" })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "最新のテストレポートを開く" })
+  ).toHaveAttribute("href", "/playwright-report/index.html");
+});
