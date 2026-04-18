@@ -1,11 +1,10 @@
 # Copilot Task Request Comment
 
 このファイルは、Task issue のコメント欄に貼るためのひな形です。
-日次 plan issue は候補選定の記録に使い、実行依頼は実装対象の Task issue に残します。
+日次 plan issue は候補選定の記録に使い、実行依頼は実装対象の Task issue に assign 前の記録として残します。
+このコメントを貼ったあと、対象 issue を Copilot に assign して開始します。
 
 ```md
-@copilot
-
 この Task では、issue #[候補を選んだ issue 番号] の候補[番号]を採用します。
 以下の条件で進めてください。
 
@@ -36,5 +35,7 @@
 
 補足:
 
-- 追加要望は、このコメントを編集せずに新しいコメントで追記する
-- Copilot は最新の `@copilot` コメントを優先的な依頼内容として扱う
+- 追加要望は、assign 前なら issue コメントで追記する
+- assign 後の追加要望や軌道修正は PR コメントに残す
+- 対象 issue への assign が実際の開始トリガーになる
+- Copilot は assignment 時点の issue 本文と既存コメントを読む前提にする

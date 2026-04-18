@@ -15,8 +15,9 @@
 - 運用サイクルは以下の通り
   - copilotがプランをいくつか提案
   - 私がプランを選択
-  - 私が、実装対象の Task issue コメント欄に採用候補と追加要望を書き、`@copilot` で依頼する
-  - copilotが設計、実行、テスト（単体テスト、E2Eテスト）、PR（copilotレビュー済）
+  - 私が、実装対象の Task issue コメント欄に採用候補と追加要望を書く
+  - 私が、その issue を Copilot に assign して開始する
+  - copilotが、issue 本文と既存コメントをもとに設計、実行、テスト（単体テスト、E2Eテスト）、PR（copilotレビュー済）
   - 私がPRを確認し、マージ
   - 上記を繰り返す（静的サイトを改善、拡張。そのため、最初はミニマム機能でよい）
 
@@ -47,12 +48,13 @@
 ## Copilot 実行依頼の運用
 
 - 日次 plan issue は「候補選定の記録」に使う
-- 実装依頼は、実装対象の Task issue コメント欄に残す
+- 実装依頼は、実装対象の Task issue コメント欄に事前記録として残す
 - コメントには、採用候補、追加要望、制約、完了条件を書く
-- Copilot への依頼は `@copilot` を付けて行う
-- Copilot は、その issue コメントを起点に plan-first、実装、単体テスト、E2E テスト、PR 作成、Copilot code review まで進める想定にする
+- 実際の開始トリガーは issue comment ではなく、対象 issue を Copilot に assign すること
+- Copilot は assignment 時点の issue 本文と既存コメントを読んで、plan-first、実装、単体テスト、E2E テスト、PR 作成、Copilot code review まで進める想定にする
+- assignment 後の追加指示や軌道修正は issue ではなく PR コメントに残す
 - issue / PR / issue comment は日本語で残す
 
 コメントのひな形:
 
-- `.github/templates/copilot-task-request-comment.md` をコピーして使う
+- `.github/templates/copilot-task-request-comment.md` をコピーして使い、その後に対象 issue を Copilot に assign する
