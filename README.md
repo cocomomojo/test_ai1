@@ -15,6 +15,7 @@
 - 運用サイクルは以下の通り
   - copilotがプランをいくつか提案
   - 私がプランを選択
+  - 私が、実装対象の Task issue コメント欄に採用候補と追加要望を書き、`@copilot` で依頼する
   - copilotが設計、実行、テスト（単体テスト、E2Eテスト）、PR（copilotレビュー済）
   - 私がPRを確認し、マージ
   - 上記を繰り返す（静的サイトを改善、拡張。そのため、最初はミニマム機能でよい）
@@ -42,3 +43,16 @@
 - Actions から `Daily Plan Issue` を実行する
 - `dry_run` を `true` にすると、issue は作らず本文だけをログに出す
 - `plan_date` を指定すると、その日付のタイトルで重複判定する
+
+## Copilot 実行依頼の運用
+
+- 日次 plan issue は「候補選定の記録」に使う
+- 実装依頼は、実装対象の Task issue コメント欄に残す
+- コメントには、採用候補、追加要望、制約、完了条件を書く
+- Copilot への依頼は `@copilot` を付けて行う
+- Copilot は、その issue コメントを起点に plan-first、実装、単体テスト、E2E テスト、PR 作成、Copilot code review まで進める想定にする
+- issue / PR / issue comment は日本語で残す
+
+コメントのひな形:
+
+- `.github/templates/copilot-task-request-comment.md` をコピーして使う

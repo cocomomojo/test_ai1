@@ -40,6 +40,9 @@
 - Link each task to a single parent goal whenever possible.
 - Manage progress in GitHub Projects with the Status field: Todo, In Progress, Done.
 - If GitHub Projects access is unavailable in the current session, keep the intended status visible in issue comments and maintain labels accurately.
+- Use daily plan issues to record candidate selection, but place implementation requests on the target task issue.
+- Treat the latest task issue comment that mentions Copilot and records the accepted candidate, extra requirements, constraints, and definition of done as the authoritative execution request.
+- Keep issue titles, PR titles, and issue comments in Japanese for this repository.
 
 ## Plan-First Workflow
 
@@ -47,6 +50,7 @@
 - The plan-first record must cover scope, affected files, risks, tests, and definition of done.
 - Ask for confirmation before moving a plan-first task to implementation when the scope or tradeoffs are material.
 - Keep the implementation aligned with the accepted plan and update the plan if the scope changes.
+- When a task issue comment explicitly asks Copilot to proceed, respond on the same issue with the plan-first record, then continue through implementation, relevant unit tests, relevant E2E tests, and PR creation unless blocked.
 
 ## Testing And PRs
 
@@ -54,6 +58,7 @@
 - Run unit tests and relevant E2E tests before opening or updating a PR.
 - Keep test coverage proportional to the change and protect against regressions.
 - Capture meaningful failures, rework, and reusable lessons as repository knowledge.
+- After opening a PR for a task requested via issue comment, request Copilot code review when that feature is available in the current GitHub context.
 
 ## Security
 
