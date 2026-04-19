@@ -36,6 +36,18 @@ jobs:
         env:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
 
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E smoke test
+        run: npm run test:e2e
+
+      - name: Copy E2E report to dist
+        run: |
+          if [ -d playwright-report ]; then
+            cp -r playwright-report dist/playwright-report
+          fi
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 

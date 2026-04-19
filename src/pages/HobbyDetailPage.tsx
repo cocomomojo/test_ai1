@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 
 import { getHobbyBySlug } from "../content/hobbies";
+import { HobbyPoster } from "../components/HobbyPoster";
 
 export function HobbyDetailPage() {
   const { slug = "" } = useParams();
@@ -45,11 +46,77 @@ export function HobbyDetailPage() {
         <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">{hobby.summary}</p>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-700 md:text-base">{hobby.detail}</p>
 
+        <div className="mt-8">
+          <HobbyPoster hobby={hobby} />
+        </div>
+
         <div className="mt-8 rounded-[1.5rem] bg-stone-100 p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
             いま注力していること
           </p>
           <p className="mt-2 text-base leading-7 text-slate-900">{hobby.currentFocus}</p>
+        </div>
+
+        <div className="mt-8">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">観測している指標</p>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {hobby.snapshot.map((metric) => (
+              <div key={metric.label} className="rounded-[1.5rem] border border-slate-900/10 bg-stone-50 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">{metric.label}</p>
+                <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">{metric.value}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{metric.note}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-8">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">深掘りテーブル</p>
+              <h3 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
+                今の状態、気づき、次にやること
+              </h3>
+            </div>
+            <p className="max-w-xl text-sm leading-6 text-slate-600">
+              感想だけで終わらず、次の試行につながる粒度で整理するための表です。
+            </p>
+          </div>
+          <div className="mt-4 overflow-hidden rounded-[1.5rem] border border-slate-900/10">
+            <table className="min-w-full divide-y divide-slate-900/10 text-left text-sm">
+              <thead className="bg-stone-100 text-slate-600">
+                <tr>
+                  <th className="px-4 py-3 font-semibold">観点</th>
+                  <th className="px-4 py-3 font-semibold">今の状態</th>
+                  <th className="px-4 py-3 font-semibold">気づき</th>
+                  <th className="px-4 py-3 font-semibold">次の一手</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-900/10 bg-white">
+                {hobby.focusTable.map((row) => (
+                  <tr key={row.theme} className="align-top">
+                    <td className="px-4 py-4 font-semibold text-slate-950">{row.theme}</td>
+                    <td className="px-4 py-4 text-slate-700">{row.current}</td>
+                    <td className="px-4 py-4 text-slate-700">{row.signal}</td>
+                    <td className="px-4 py-4 text-slate-700">{row.nextAction}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="mt-8">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">組み合わせから生まれる案</p>
+          <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {hobby.innovationIdeas.map((idea) => (
+              <article key={idea.title} className="rounded-[1.5rem] border border-slate-900/10 bg-stone-50 p-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">{idea.combination}</p>
+                <h4 className="mt-2 text-lg font-semibold text-slate-950">{idea.title}</h4>
+                <p className="mt-3 text-sm leading-6 text-slate-700">{idea.summary}</p>
+              </article>
+            ))}
+          </div>
         </div>
 
         <div className="mt-8">
@@ -79,6 +146,16 @@ export function HobbyDetailPage() {
             </li>
           ))}
         </ul>
+        <div className="mt-8 rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">次に深掘りしたい切り口</p>
+          <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-200">
+            {hobby.draftAngles.map((angle) => (
+              <li key={angle} className="rounded-2xl border border-white/10 px-3 py-3">
+                {angle}
+              </li>
+            ))}
+          </ul>
+        </div>
         <Link
           to="/hobbies"
           className="mt-6 inline-flex rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:border-white/40"

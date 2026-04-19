@@ -23,7 +23,7 @@
 | React + Vite + TypeScript | 趣味サイト本体を作る |
 | Zod スキーマ | コンテンツの形を崩れにくくする |
 | Vitest / Playwright | 単体テスト・E2E テストを回す |
-| GitHub Actions | build / test / 日次 plan issue を自動化する |
+| GitHub Actions | build / test / deploy / 日次 plan issue / 日次 content draft issue を自動化する |
 | Copilot 運用ルール | Plan-first、Task issue、PR レビューの流れを揃える |
 | README / PLAN / instructions | 人が読んでも AI が読んでも迷いにくくする |
 
@@ -46,8 +46,8 @@ flowchart TD
 | --- | --- | --- |
 | サイト画面 | `src/pages` | トップ、趣味一覧、趣味詳細、テストレポート画面を持つ |
 | アプリの土台 | `src/app` | ルーティング、レイアウト、アプリ全体の入り口をまとめる |
-| コンテンツ定義 | `src/content` | 趣味データのスキーマ検証と seed データ管理を行う |
-| 自動化スクリプト | `scripts` | 日次 plan issue を作る処理を置く |
+| コンテンツ定義 | `src/content` | 趣味データのスキーマ検証、深掘りテーブル、組み合わせ案、下書き角度を管理する |
+| 自動化スクリプト | `scripts` | 日次 plan issue と日次 content draft issue を作る処理を置く |
 | E2E テスト | `tests/e2e` | 実際の画面導線が崩れていないか確認する |
 | 運用ドキュメント | `./README.md` / `./PLAN.md` / `./.github/copilot-instructions.md` | 人と Copilot が同じ前提で作業できるようにする |
 
@@ -107,13 +107,14 @@ flowchart TD
 | Copilot の作業ルールを知りたい | `./.github/copilot-instructions.md` |
 | 画面遷移を知りたい | `src/app/router.tsx` |
 | コンテンツの型を知りたい | `src/content/schema.ts` |
-| 日次 issue 自動化を知りたい | `scripts/create-daily-plan-issue.mjs` |
+| 日次 issue 自動化を知りたい | `scripts/create-daily-plan-issue.mjs` / `scripts/create-daily-content-draft-issue.mjs` |
 
 ## この workspace が自動でやっていること 🤖
 
 | 自動化 | 内容 |
 | --- | --- |
-| 日次 plan issue | 毎日の候補整理を GitHub Actions で補助する |
+| 日次 plan issue | 毎日の機能改善候補整理を GitHub Actions で補助する |
+| 日次 content draft issue | 公開前のコンテンツ下書き候補を GitHub Actions で補助する |
 | build / test | 壊れていないかを継続的に確認しやすくする |
 | E2E レポート導線 | `/report` から Playwright レポートへ移動できる |
 
@@ -122,9 +123,10 @@ flowchart TD
 このサイトは GitHub Pages に公開します。
 
 - main に push されると GitHub Actions の deploy workflow が起動します
-- workflow は依存関係のインストール、build、Pages artifact の upload、GitHub Pages への deploy を順に実行します
+- workflow は依存関係のインストール、build、Playwright の E2E 実行、`playwright-report` の同梱、Pages artifact の upload、GitHub Pages への deploy を順に実行します
 - 想定公開 URL は https://cocomomojo.github.io/test_ai1/ です
 - アプリの router とレポートリンクも base path に追従するため、公開環境では `/test_ai1/` 配下で遷移します
+- そのため https://cocomomojo.github.io/test_ai1/playwright-report/index.html も deploy 成功後は同じ artifact 内で配信されます
 
 ### https://cocomomojo.github.io が 404 の場合
 
@@ -141,6 +143,7 @@ https://cocomomojo.github.io のルート直下で公開したい場合は、次
 - GitHub Actions の Deploy to GitHub Pages workflow が成功しているか確認する
 - repository Settings の Pages が GitHub Actions を使う設定になっているか確認する
 - main への push 後の最新 deploy が完了しているか確認する
+- `/report` は表示できても `playwright-report/index.html` が 404 の場合は、deploy workflow 内の E2E 実行か artifact upload が失敗していないか確認する
 
 ### 画面を直接開いたり再読込したときだけ 404 の場合
 
@@ -174,8 +177,24 @@ flowchart TD
 | ファイル | 役割 |
 | --- | --- |
 | `./.github/workflows/daily-plan-issue.yml` | 日次実行の workflow |
-| `scripts/create-daily-plan-issue.mjs` | issue 本文を作って起票する処理 |
+| `scripts/create-daily-plan-issue.mjs` | 機能改善用の issue 本文を作って起票する処理 |
 | `./.github/prompts/daily-plan-issue.prompt.md` | Copilot に渡すプロンプト |
+
+## 日次 content draft issue って何？ 📝
+
+**「次にどんなコンテンツを育てるか」を毎日下書きとして提案してくれる機能**です。
+
+- 機能改善とは分けて、コンテンツだけの候補を issue 化します
+- 出力は公開そのものではなく、あくまでレビュー前の下書きです
+- 著作権に触れないよう、外部記事や画像の転載ではなく、自前の整理・表・図解案だけを扱います
+
+### 関連ファイル
+
+| ファイル | 役割 |
+| --- | --- |
+| `./.github/workflows/daily-content-draft.yml` | 日次コンテンツ下書きの workflow |
+| `scripts/create-daily-content-draft-issue.mjs` | issue 本文を作って起票する処理 |
+| `./.github/prompts/daily-content-draft.prompt.md` | Copilot に渡すプロンプト |
 
 ## Copilot の種類と役割 🤖
 
@@ -183,14 +202,14 @@ flowchart TD
 
 | 種類 | 何者か | どこで動くか | 担当タスク |
 | --- | --- | --- | --- |
-| **Copilot CLI** | `@github/copilot` npm パッケージ | GitHub Actions（日次 workflow） | 毎日の改善候補を生成して plan issue を起票する |
+| **Copilot CLI** | `@github/copilot` npm パッケージ | GitHub Actions（日次 workflow） | 毎日の機能改善候補と content draft 候補を issue として起票する |
 | **Copilot Coding Agent** | GitHub の AI エージェント | **Agents タブ**（issue assign で起動） | plan-first → 実装 → テスト → PR 作成を自律で進める |
 
 ### Copilot CLI とは？
 
 - `@github/copilot` という npm パッケージで提供される CLI ツールです
-- GitHub Actions の workflow から `node scripts/create-daily-plan-issue.mjs` で呼び出されます
-- Copilot API を使って `PLAN.md` / `README.md` / open issues を読み、その日の改善候補を日本語で生成します
+- GitHub Actions の workflow から `node scripts/create-daily-plan-issue.mjs` と `node scripts/create-daily-content-draft-issue.mjs` で呼び出されます
+- Copilot API を使って `PLAN.md` / `README.md` / open issues / 現在のコンテンツを読み、機能候補とコンテンツ下書き候補を日本語で生成します
 - IDE の Copilot 補完や Chat とは **別物**です
 
 ### Copilot Coding Agent とは？
@@ -205,7 +224,9 @@ flowchart TD
 | タスク | 担当 | 使うツール / 場所 |
 | --- | --- | --- |
 | 改善案の提案 | 🤖 Copilot CLI（自動） | GitHub Actions → 日次 plan issue |
+| コンテンツ下書きの提案 | 🤖 Copilot CLI（自動） | GitHub Actions → 日次 content draft issue |
 | 候補の選定 | 👤 オーナー | 日次 plan issue を読んで決める |
+| 下書きの採用・公開判断 | 👤 オーナー | 日次 content draft issue を読んで決める |
 | 依頼内容の記録 | 👤 オーナー | Task issue コメント欄（採用候補・要望・制約・完了条件） |
 | Task issue の assign | 👤 オーナー | GitHub Issues |
 | plan-first（設計記録） | 🤖 Copilot Coding Agent | Issue コメント / Agents タブで確認 |
@@ -235,6 +256,7 @@ flowchart TD
 | マージ判断はオーナーが行う | Copilot は PR を作るが、最終的なマージ判断はオーナーの責任 |
 | plan-first は必ず確認する | 複数ファイルに影響する変更は、Copilot が issue に書いた plan-first コメントを確認してから進める |
 | CLI と Coding Agent は別物 | Copilot CLI は GitHub Actions 上の自動処理。Coding Agent は Agents タブで動く。混同しないこと |
+| 自動生成コンテンツは即公開しない | 日次 content draft issue は下書き生成まで。公開前に著作権・事実関係・文体を確認する |
 
 ## 迷ったらこの理解で OK 🙌
 

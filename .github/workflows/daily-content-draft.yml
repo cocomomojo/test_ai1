@@ -1,0 +1,45 @@
+name: Daily Content Draft Issue
+
+"on":
+  schedule:
+    - cron: "15 22 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Issue を作らず本文だけ確認する"
+        required: false
+        default: true
+        type: boolean
+      plan_date:
+        description: "タイトルに使う日付 (YYYY-MM-DD)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  create-daily-content-draft-issue:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Copilot CLI
+        run: npm install --global @github/copilot@1.0.32
+
+      - name: Generate daily content draft issue
+        run: node scripts/create-daily-content-draft-issue.mjs
+        env:
+          REPOSITORY: ${{ github.repository }}
+          PLAN_DATE: ${{ inputs.plan_date }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_CLI_TOKEN }}

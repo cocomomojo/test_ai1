@@ -28,6 +28,21 @@ describe("getPublishedHobbies", () => {
     const tail = result.slice(result.length - withoutDate.length);
     expect(tail.every((h) => !h.updatedAt)).toBe(true);
   });
+
+  it("DIY、カレー、DevOps を公開済みテーマとして含む", () => {
+    const names = getPublishedHobbies().map((h) => h.name);
+    expect(names).toContain("DIY");
+    expect(names).toContain("カレー");
+    expect(names).toContain("DevOps");
+  });
+
+  it("すべての公開済みテーマが深掘り用データを持つ", () => {
+    const result = getPublishedHobbies();
+    expect(result.every((h) => h.snapshot.length >= 3)).toBe(true);
+    expect(result.every((h) => h.focusTable.length >= 3)).toBe(true);
+    expect(result.every((h) => h.innovationIdeas.length >= 2)).toBe(true);
+    expect(result.every((h) => h.draftAngles.length >= 2)).toBe(true);
+  });
 });
 
 describe("filterHobbies", () => {
