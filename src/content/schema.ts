@@ -15,7 +15,10 @@ export const hobbySchema = z.object({
   cadence: z.string().min(1),
   currentFocus: z.string().min(1),
   highlights: z.array(hobbyHighlightSchema).min(1),
-  firstReleaseItems: z.array(z.string().min(1)).min(2)
+  firstReleaseItems: z.array(z.string().min(1)).min(2),
+  tags: z.array(z.string().min(1)).optional(),
+  updatedAt: z.string().optional(),
+  published: z.boolean().optional()
 });
 
 export const hobbiesSchema = z.array(hobbySchema);

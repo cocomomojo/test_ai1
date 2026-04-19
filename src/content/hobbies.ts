@@ -12,6 +12,9 @@ const hobbySeed = [
     status: "active",
     cadence: "週3回",
     currentFocus: "10kmを気持ちよく走れるペース作り",
+    tags: ["運動", "健康", "記録"],
+    updatedAt: "2026-04-19",
+    published: true,
     highlights: [
       {
         title: "ルートメモ",
@@ -42,6 +45,9 @@ const hobbySeed = [
     status: "active",
     cadence: "毎日",
     currentFocus: "朝の定番レシピを1つ完成させる",
+    tags: ["コーヒー", "レシピ", "道具"],
+    updatedAt: "2026-04-19",
+    published: true,
     highlights: [
       {
         title: "抽出レシピ",
@@ -72,6 +78,9 @@ const hobbySeed = [
     status: "incubating",
     cadence: "週末",
     currentFocus: "趣味サイトを少しずつ育てるUIと運用の試作",
+    tags: ["制作", "UI", "自動化"],
+    updatedAt: "2026-04-19",
+    published: true,
     highlights: [
       {
         title: "UI実験",
