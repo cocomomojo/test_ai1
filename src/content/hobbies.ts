@@ -108,3 +108,22 @@ export const hobbies = hobbiesSchema.parse(hobbySeed);
 export function getHobbyBySlug(slug: string) {
   return hobbies.find((hobby) => hobby.slug === slug);
 }
+
+export function getPublishedHobbies() {
+  return hobbies
+    .filter((h) => h.published !== false)
+    .sort((a, b) => {
+      if (!a.updatedAt && !b.updatedAt) return 0;
+      if (!a.updatedAt) return 1;
+      if (!b.updatedAt) return -1;
+      return b.updatedAt.localeCompare(a.updatedAt);
+    });
+}
+
+export function filterHobbies(list: typeof hobbies, tag?: string, category?: string) {
+  return list.filter((h) => {
+    if (tag && !(h.tags ?? []).includes(tag)) return false;
+    if (category && h.category !== category) return false;
+    return true;
+  });
+}

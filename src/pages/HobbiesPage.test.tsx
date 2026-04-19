@@ -1,0 +1,71 @@
+import { fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+
+import { HobbiesPage } from "./HobbiesPage";
+
+function renderPage(search = "") {
+  render(
+    <MemoryRouter initialEntries={[`/hobbies${search}`]}>
+      <HobbiesPage />
+    </MemoryRouter>
+  );
+}
+
+describe("HobbiesPage", () => {
+  it("公開済みの趣味を全件表示する", () => {
+    renderPage();
+    expect(screen.getByRole("heading", { name: "ランニング" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "コーヒー" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "小さな制作" })).toBeInTheDocument();
+  });
+
+  it("タグが趣味カードに表示される", () => {
+    renderPage();
+    // タグはフィルタボタンとカード内タグの両方に表示される
+    expect(screen.getAllByText("運動").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText("健康").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("記録").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("更新日が趣味カードに表示される", () => {
+    renderPage();
+    const updatedLabels = screen.getAllByText(/^更新:/);
+    expect(updatedLabels.length).toBeGreaterThan(0);
+  });
+
+  it("カテゴリフィルタボタンがすべて表示される", () => {
+    renderPage();
+    expect(screen.getByRole("button", { name: "身体を動かす" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "家で楽しむ" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "つくる" })).toBeInTheDocument();
+  });
+
+  it("カテゴリボタンをクリックすると該当する趣味だけ残る", () => {
+    renderPage();
+    fireEvent.click(screen.getByRole("button", { name: "身体を動かす" }));
+    expect(screen.getByRole("heading", { name: "ランニング" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "コーヒー" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "小さな制作" })).not.toBeInTheDocument();
+  });
+
+  it("タグボタンをクリックすると該当する趣味だけ残る", () => {
+    renderPage();
+    fireEvent.click(screen.getByRole("button", { name: "レシピ" }));
+    expect(screen.queryByRole("heading", { name: "ランニング" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "コーヒー" })).toBeInTheDocument();
+  });
+
+  it("絞り込み後に「絞り込みを解除」ボタンが表示される", () => {
+    renderPage();
+    fireEvent.click(screen.getByRole("button", { name: "身体を動かす" }));
+    expect(screen.getByRole("button", { name: "絞り込みを解除" })).toBeInTheDocument();
+  });
+
+  it("絞り込みを解除すると全件に戻る", () => {
+    renderPage();
+    fireEvent.click(screen.getByRole("button", { name: "身体を動かす" }));
+    fireEvent.click(screen.getByRole("button", { name: "絞り込みを解除" }));
+    expect(screen.getByRole("heading", { name: "ランニング" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "コーヒー" })).toBeInTheDocument();
+  });
+});
