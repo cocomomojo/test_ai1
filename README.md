@@ -1,6 +1,6 @@
 # test_ai1 📚✨
 
-初心者にも分かりやすく、**この workspace が何をしているのか**を見た目でつかめるようにまとめた解説書です。
+**この workspace が何をしているのか**を見た目でつかめるようにまとめた解説書です。
 
 > [!TIP]
 > 「このプロジェクトで最終的に何を目指すか」は `./PLAN.md` に集約しています。  
@@ -11,7 +11,8 @@
 - この workspace の役割
 - どのファイルに何があるか
 - どうやって開発・テスト・運用するか
-- Copilot と人がどう分担して進めるか
+- オーナーと Copilot がどう役割を分担するか
+- Copilot には 2 種類あり、それぞれどのタスクを担うか
 
 ## まず一言でいうと、この workspace は何？ 🎯
 
@@ -30,12 +31,12 @@
 
 ```mermaid
 flowchart TD
-    A[👤 オーナーが改善したいことを考える] --> B[📝 PLAN.md と日次 plan issue で候補整理]
-    B --> C[📌 Task issue に要望・制約・完了条件を書く]
-    C --> D[🤖 Copilot を assign]
-    D --> E[🧠 plan-first → 実装 → テスト]
-    E --> F[🔍 PR / レビュー / 修正]
-    F --> G[🚀 マージしてサイトと workspace を成長]
+    A["👤 オーナー\n改善したいことを考える"] --> B["🤖 Copilot CLI（自動）\n日次 plan issue で候補を提案"]
+    B --> C["👤 オーナー\n候補を選び Task issue に\n要望・制約・完了条件を書く"]
+    C --> D["👤 オーナー\nTask issue を Copilot に assign"]
+    D --> E["🤖 Copilot Coding Agent\nplan-first（設計記録）→ 実装 → テスト → PR 作成"]
+    E --> F["👤 オーナー\nPR をレビュー・承認・マージ"]
+    F --> G["🚀 サイトと workspace が成長"]
     G --> B
 ```
 
@@ -74,13 +75,13 @@ test_ai1/
 ## 実際の開発フロー 🔄
 
 ```mermaid
-flowchart LR
-    A[💡 改善テーマを決める] --> B[📚 PLAN.md で方向を確認]
-    B --> C[📝 Task issue に依頼を書く]
-    C --> D[🤖 Copilot が実装]
-    D --> E[✅ lint / unit test / E2E / build]
-    E --> F[👀 人が確認]
-    F --> G[🌱 次の改善へ]
+flowchart TD
+    A["💡 オーナー\n改善テーマを決める"] --> B["📚 PLAN.md で方向を確認"]
+    B --> C["📝 オーナー\nTask issue に依頼を書く"]
+    C --> D["🤖 Copilot Coding Agent\n実装（plan-first → コード → テスト）"]
+    D --> E["✅ lint / unit test / E2E / build"]
+    E --> F["👀 オーナー\nPR を確認・マージ"]
+    F --> G["🌱 次の改善へ"]
 ```
 
 ## まず触るならここから 🚀
@@ -118,14 +119,14 @@ flowchart LR
 
 ## 日次 plan issue って何？ 📅
 
-初心者向けに言うと、**「今日は何を直す・進めるか」を毎日提案してくれるメモの自動作成機能**です。
+**「今日は何を直す・進めるか」を毎日提案してくれるメモの自動作成機能**です。
 
 ```mermaid
 flowchart TD
-    A[⏰ GitHub Actions が定時実行] --> B[📖 README / PLAN / 既存 issue を読む]
-    B --> C[🤖 Copilot CLI がその日の候補を生成]
-    C --> D[📝 日次 plan issue を作成]
-    D --> E[👤 人が採用候補を選ぶ]
+    A["⏰ GitHub Actions\n毎日 07:00 JST に定時実行"] --> B["📖 Copilot CLI\nREADME / PLAN / 既存 issue を読む"]
+    B --> C["🤖 Copilot CLI\nその日の候補を生成"]
+    C --> D["📝 GitHub Issues\n日次 plan issue を起票"]
+    D --> E["👤 オーナー\n採用候補を選ぶ"]
 ```
 
 ### 関連ファイル
@@ -138,20 +139,64 @@ flowchart TD
 | `scripts/create-daily-plan-issue.mjs` | issue 本文を作って起票する処理 |
 | `./.github/prompts/daily-plan-issue.prompt.md` | Copilot に渡すプロンプト |
 
-## 人と Copilot の分担 🤝
+## Copilot の種類と役割 🤖
 
-| 担当 | 役割 |
-| --- | --- |
-| 人 | 方針を決める / 候補を選ぶ / 最終確認してマージする |
-| Copilot | plan-first / 実装 / テスト / PR 更新を進める |
-| README / PLAN / instructions | 両者の前提を揃える共通メモになる |
+この workspace では **2 種類の Copilot** が動いています。
+
+| 種類 | 何者か | どこで動くか | 担当タスク |
+| --- | --- | --- | --- |
+| **Copilot CLI** | `@github/copilot` npm パッケージ | GitHub Actions（日次 workflow） | 毎日の改善候補を生成して plan issue を起票する |
+| **Copilot Coding Agent** | GitHub の AI エージェント | **Agents タブ**（issue assign で起動） | plan-first → 実装 → テスト → PR 作成を自律で進める |
+
+### Copilot CLI とは？
+
+- `@github/copilot` という npm パッケージで提供される CLI ツールです
+- GitHub Actions の workflow から `node scripts/create-daily-plan-issue.mjs` で呼び出されます
+- Copilot API を使って `PLAN.md` / `README.md` / open issues を読み、その日の改善候補を日本語で生成します
+- IDE の Copilot 補完や Chat とは **別物**です
+
+### Copilot Coding Agent とは？
+
+- GitHub リポジトリの **Agents タブ** から動作状況を確認できる AI エージェントです
+- オーナーが Task issue を Copilot に **assign** することで起動します
+- 動作内容：issue の本文・コメントを読む → plan-first（設計をコメントに書く）→ コードを実装 → テスト・lint・build を実行 → PR を作成 → Copilot 自身によるコードレビュー
+- PR 作成後の追加指示は **issue ではなく PR コメント** に書くこと
+
+## オーナーと Copilot の役割分担 🤝
+
+| タスク | 担当 | 使うツール / 場所 |
+| --- | --- | --- |
+| 改善案の提案 | 🤖 Copilot CLI（自動） | GitHub Actions → 日次 plan issue |
+| 候補の選定 | 👤 オーナー | 日次 plan issue を読んで決める |
+| 依頼内容の記録 | 👤 オーナー | Task issue コメント欄（採用候補・要望・制約・完了条件） |
+| Task issue の assign | 👤 オーナー | GitHub Issues |
+| plan-first（設計記録） | 🤖 Copilot Coding Agent | Issue コメント / Agents タブで確認 |
+| 実装・テスト | 🤖 Copilot Coding Agent | ブランチ / Agents タブで確認 |
+| PR 作成・自己レビュー | 🤖 Copilot Coding Agent | GitHub Pull Requests |
+| PR の最終確認・マージ | 👤 オーナー | GitHub Pull Requests |
+| 軌道修正・追加指示 | 👤 オーナー | **PR コメント**（issue ではない） |
+
+> [!NOTE]
+> assign 後の追加指示は **PR コメント** に書いてください。  
+> issue に書いても Copilot は読み取りません。
 
 ## この README の読み方おすすめ順 📖
 
-1. `README.md` で全体像をつかむ
+1. `README.md` で全体像をつかむ（← 今ここ）
 2. `./PLAN.md` で中長期の方向性を確認する
-3. `./.github/copilot-instructions.md` で運用ルールを確認する
+3. `./.github/copilot-instructions.md` で Copilot への運用ルールを確認する
 4. `src/app` / `src/pages` / `src/content` を見て実装の実体を知る
+
+## ⚠️ 注意事項
+
+| 注意点 | 内容 |
+| --- | --- |
+| 追加指示は PR コメントへ | assign 後の要望変更・修正依頼は issue ではなく PR コメントに書く |
+| secrets の管理 | `COPILOT_CLI_TOKEN` は repo secrets に設定する。コードには絶対に書かない |
+| assign 前にコメントを書く | Task issue を assign する **前に** 要望・制約・完了条件をコメントとして残す |
+| マージ判断はオーナーが行う | Copilot は PR を作るが、最終的なマージ判断はオーナーの責任 |
+| plan-first は必ず確認する | 複数ファイルに影響する変更は、Copilot が issue に書いた plan-first コメントを確認してから進める |
+| CLI と Coding Agent は別物 | Copilot CLI は GitHub Actions 上の自動処理。Coding Agent は Agents タブで動く。混同しないこと |
 
 ## 迷ったらこの理解で OK 🙌
 
@@ -159,4 +204,4 @@ flowchart TD
 > **趣味サイトを作るためのアプリ**であり、同時に  
 > **Copilot と一緒に安全に改善を回すための workspace** です。
 
-そのため、コードだけでなく **運用ルール・自動化・テスト・ドキュメント** も同じくらい大事にしています。
+コードだけでなく **運用ルール・自動化・テスト・ドキュメント** も同じくらい大事にしています。
