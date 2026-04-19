@@ -17,6 +17,9 @@ describe("HobbiesPage", () => {
     expect(screen.getByRole("heading", { name: "ランニング" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "コーヒー" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "小さな制作" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "DIY" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "カレー" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "DevOps" })).toBeInTheDocument();
   });
 
   it("タグが趣味カードに表示される", () => {
@@ -38,6 +41,9 @@ describe("HobbiesPage", () => {
     expect(screen.getByRole("button", { name: "身体を動かす" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "家で楽しむ" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "つくる" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "暮らしを整える" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "台所で試す" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "技術を育てる" })).toBeInTheDocument();
   });
 
   it("カテゴリボタンをクリックすると該当する趣味だけ残る", () => {
@@ -50,9 +56,10 @@ describe("HobbiesPage", () => {
 
   it("タグボタンをクリックすると該当する趣味だけ残る", () => {
     renderPage();
-    fireEvent.click(screen.getByRole("button", { name: "レシピ" }));
+    fireEvent.click(screen.getByRole("button", { name: "コーヒー" }));
     expect(screen.queryByRole("heading", { name: "ランニング" })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "コーヒー" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "カレー" })).not.toBeInTheDocument();
   });
 
   it("絞り込み後に「絞り込みを解除」ボタンが表示される", () => {

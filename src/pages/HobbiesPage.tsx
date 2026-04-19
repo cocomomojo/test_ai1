@@ -12,6 +12,7 @@ export function HobbiesPage() {
   const allTags = [...new Set(publishedHobbies.flatMap((h) => h.tags ?? []))];
 
   const filteredHobbies = filterHobbies(publishedHobbies, activeTag || undefined, activeCategory || undefined);
+  const totalDraftAngles = publishedHobbies.reduce((count, hobby) => count + hobby.draftAngles.length, 0);
 
   function toggleTag(tag: string) {
     setSearchParams((prev) => {
@@ -45,12 +46,28 @@ export function HobbiesPage() {
 
   return (
     <section className="space-y-6">
-      <div className="space-y-2">
-        <p className="text-sm uppercase tracking-[0.3em] text-slate-500">趣味一覧</p>
-        <h2 className="text-3xl font-semibold tracking-tight text-slate-950">今このサイトで扱うテーマ</h2>
-        <p className="max-w-2xl text-sm leading-6 text-slate-600 md:text-base">
-          毎週または毎日触れている趣味を中心に、見返しやすい単位でまとめます。
-        </p>
+      <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="space-y-2">
+          <p className="text-sm uppercase tracking-[0.3em] text-slate-500">趣味一覧</p>
+          <h2 className="text-3xl font-semibold tracking-tight text-slate-950">今このサイトで扱うテーマ</h2>
+          <p className="max-w-2xl text-sm leading-6 text-slate-600 md:text-base">
+            毎週または毎日触れている趣味を中心に、概要、深掘りの切り口、組み合わせ仮説まで一緒に残します。
+          </p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-3">
+          <div className="rounded-[1.5rem] border border-slate-900/10 bg-white p-5 shadow-[0_12px_30px_rgba(15,23,42,0.04)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">公開テーマ</p>
+            <p className="mt-3 text-3xl font-semibold text-slate-950">{publishedHobbies.length}</p>
+          </div>
+          <div className="rounded-[1.5rem] border border-slate-900/10 bg-white p-5 shadow-[0_12px_30px_rgba(15,23,42,0.04)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">カテゴリ</p>
+            <p className="mt-3 text-3xl font-semibold text-slate-950">{allCategories.length}</p>
+          </div>
+          <div className="rounded-[1.5rem] border border-slate-900/10 bg-white p-5 shadow-[0_12px_30px_rgba(15,23,42,0.04)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">下書き角度</p>
+            <p className="mt-3 text-3xl font-semibold text-slate-950">{totalDraftAngles}</p>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-3 rounded-2xl border border-slate-900/5 bg-stone-50 p-4">
@@ -124,11 +141,31 @@ export function HobbiesPage() {
                 </div>
               )}
               <p className="mt-4 text-sm leading-6 text-slate-600">{hobby.summary}</p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                {hobby.snapshot.map((metric) => (
+                  <div key={metric.label} className="rounded-2xl bg-stone-100 px-3 py-3 text-sm text-slate-700">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                      {metric.label}
+                    </p>
+                    <p className="mt-2 text-base font-semibold text-slate-950">{metric.value}</p>
+                  </div>
+                ))}
+              </div>
               <div className="mt-4 rounded-2xl bg-stone-100 p-4 text-sm text-slate-700">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
                   いま注力していること
                 </p>
                 <p className="mt-2 leading-6">{hobby.currentFocus}</p>
+              </div>
+              <div className="mt-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">次に深掘りしたい切り口</p>
+                <ul className="mt-2 space-y-2 text-sm text-slate-700">
+                  {hobby.draftAngles.slice(0, 2).map((item) => (
+                    <li key={item} className="rounded-2xl border border-slate-900/10 px-3 py-3">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
               <ul className="mt-4 space-y-2 text-sm text-slate-700">
                 {hobby.firstReleaseItems.map((item) => (

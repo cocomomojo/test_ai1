@@ -5,7 +5,7 @@ test("ホームが初回リリース導線を表示する", async ({ page }) => 
 
   await expect(
     page.getByRole("heading", {
-      name: "私の趣味を、続けやすい形で少しずつ残していく。"
+      name: "手を動かすテーマと技術の観察を、毎日更新できる形に整える。"
     })
   ).toBeVisible();
   await expect(page.getByRole("link", { name: "趣味一覧を見る" })).toBeVisible();
@@ -21,9 +21,9 @@ test("趣味一覧が主要テーマを表示する", async ({ page }) => {
 test("趣味詳細がランニングの内容を表示する", async ({ page }) => {
   await page.goto("/hobbies/running");
 
-  await expect(page.getByRole("heading", { name: "ランニング" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "ランニング", level: 2 })).toBeVisible();
   await expect(page.getByText("10kmを気持ちよく走れるペース作り")).toBeVisible();
-  await expect(page.getByText("ルートメモ")).toBeVisible();
+  await expect(page.locator("aside").getByText("ルートメモ", { exact: true })).toBeVisible();
 });
 
 test("フッターの E2E テストレポートリンクが /report へ遷移する", async ({ page }) => {
@@ -57,10 +57,11 @@ test("趣味一覧でカテゴリフィルタを使うと絞り込みできる",
 test("タグフィルタ選択後に詳細ページへ遷移できる", async ({ page }) => {
   await page.goto("/hobbies");
 
-  await page.getByRole("button", { name: "レシピ" }).click();
+  await page.getByRole("button", { name: "コーヒー" }).click();
 
   await expect(page.getByRole("heading", { name: "コーヒー" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "ランニング" })).not.toBeVisible();
+  await expect(page.getByRole("heading", { name: "カレー" })).not.toBeVisible();
 
   await page.getByRole("link", { name: "詳細を見る" }).click();
 
@@ -68,9 +69,18 @@ test("タグフィルタ選択後に詳細ページへ遷移できる", async ({
   await expect(page.getByText("朝の定番レシピを1つ完成させる")).toBeVisible();
 });
 
+test("DevOps 詳細ページが表と組み合わせ案を表示する", async ({ page }) => {
+  await page.goto("/hobbies/devops");
+
+  await expect(page.getByRole("heading", { name: "DevOps", level: 2 })).toBeVisible();
+  await expect(page.getByRole("img", { name: "DevOps のイメージボード" })).toBeVisible();
+  await expect(page.getByRole("table")).toBeVisible();
+  await expect(page.getByText("AWS preview とレポート公開を一本化する")).toBeVisible();
+});
+
 test("趣味詳細ページにタグと更新日が表示される", async ({ page }) => {
   await page.goto("/hobbies/running");
 
-  await expect(page.getByText("運動")).toBeVisible();
+  await expect(page.locator("article span").filter({ hasText: /^運動$/ }).first()).toBeVisible();
   await expect(page.getByText(/更新:/)).toBeVisible();
 });
