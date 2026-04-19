@@ -33,6 +33,15 @@ export function HobbyDetailPage() {
           <span className="rounded-full bg-stone-100 px-3 py-1">{hobby.cadence}</span>
         </div>
         <h2 className="mt-3 text-4xl font-semibold tracking-tight text-slate-950">{hobby.name}</h2>
+        {hobby.tags && hobby.tags.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {hobby.tags.map((tag) => (
+              <span key={tag} className="rounded-full bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
         <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">{hobby.summary}</p>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-700 md:text-base">{hobby.detail}</p>
 
@@ -55,6 +64,9 @@ export function HobbyDetailPage() {
             ))}
           </ul>
         </div>
+        {hobby.updatedAt && (
+          <p className="mt-2 text-xs text-slate-400">更新: {hobby.updatedAt}</p>
+        )}
       </article>
 
       <aside className="rounded-[2rem] border border-slate-900/10 bg-slate-950 px-8 py-10 text-white">
