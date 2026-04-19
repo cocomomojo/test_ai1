@@ -3,8 +3,8 @@
 初心者にも分かりやすく、**この workspace が何をしているのか**を見た目でつかめるようにまとめた解説書です。
 
 > [!TIP]
-> 「このプロジェクトで最終的に何を目指すか」は `/home/runner/work/test_ai1/test_ai1/PLAN.md` に集約しています。  
-> README は **日々の使い方・構造・進め方** を理解するための入口です。
+> 「このプロジェクトで最終的に何を目指すか」は `./PLAN.md` に集約しています。  
+> README は **日々の使い方・構造・進め方** を理解するための入り口です。
 
 ## この README で分かること 👀
 
@@ -43,23 +43,30 @@ flowchart TD
 
 | レイヤー | 主な場所 | 何をしているか |
 | --- | --- | --- |
-| サイト画面 | `/home/runner/work/test_ai1/test_ai1/src/pages` | トップ、趣味一覧、趣味詳細、テストレポート画面を持つ |
-| アプリの土台 | `/home/runner/work/test_ai1/test_ai1/src/app` | ルーティング、レイアウト、アプリ全体の入口をまとめる |
-| コンテンツ定義 | `/home/runner/work/test_ai1/test_ai1/src/content` | 趣味データのスキーマ検証と seed データ管理を行う |
-| 自動化スクリプト | `/home/runner/work/test_ai1/test_ai1/scripts` | 日次 plan issue を作る処理を置く |
-| E2E テスト | `/home/runner/work/test_ai1/test_ai1/tests/e2e` | 実際の画面導線が崩れていないか確認する |
-| 運用ドキュメント | `/home/runner/work/test_ai1/test_ai1/README.md` / `/home/runner/work/test_ai1/test_ai1/PLAN.md` / `.github/copilot-instructions.md` | 人と Copilot が同じ前提で作業できるようにする |
+| サイト画面 | `src/pages` | トップ、趣味一覧、趣味詳細、テストレポート画面を持つ |
+| アプリの土台 | `src/app` | ルーティング、レイアウト、アプリ全体の入り口をまとめる |
+| コンテンツ定義 | `src/content` | 趣味データのスキーマ検証と seed データ管理を行う |
+| 自動化スクリプト | `scripts` | 日次 plan issue を作る処理を置く |
+| E2E テスト | `tests/e2e` | 実際の画面導線が崩れていないか確認する |
+| 運用ドキュメント | `./README.md` / `./PLAN.md` / `./.github/copilot-instructions.md` | 人と Copilot が同じ前提で作業できるようにする |
 
-## ディレクトリ構成の見取り図 🏗️
+## 主要ディレクトリ構成の見取り図（抜粋）🏗️
 
 ```text
 test_ai1/
+├─ .github/
+│  ├─ workflows/   # GitHub Actions
+│  ├─ prompts/     # Copilot 用プロンプト
+│  └─ copilot-instructions.md
 ├─ src/
-│  ├─ app/        # ルーター・レイアウト・アプリ入口
+│  ├─ app/        # ルーター・レイアウト・アプリ入り口
 │  ├─ content/    # Zod スキーマとコンテンツ
 │  └─ pages/      # 画面コンポーネント
 ├─ tests/e2e/     # Playwright のスモークテスト
 ├─ scripts/       # GitHub 運用の補助スクリプト
+├─ package.json   # npm scripts と依存関係
+├─ vite.config.ts # Vite 設定
+├─ playwright.config.ts
 ├─ PLAN.md        # 目指す姿・進行方針
 └─ README.md      # 使い方と全体像の案内板
 ```
@@ -91,13 +98,15 @@ flowchart LR
 
 ### 2. 何を見ると理解しやすい？
 
+以下は **repo ルートから見た実在パス** です。
+
 | 目的 | 最初に見る場所 |
 | --- | --- |
-| プロジェクトの方針を知りたい | `/home/runner/work/test_ai1/test_ai1/PLAN.md` |
-| Copilot の作業ルールを知りたい | `/home/runner/work/test_ai1/test_ai1/.github/copilot-instructions.md` |
-| 画面遷移を知りたい | `/home/runner/work/test_ai1/test_ai1/src/app/router.tsx` |
-| コンテンツの型を知りたい | `/home/runner/work/test_ai1/test_ai1/src/content/schema.ts` |
-| 日次 issue 自動化を知りたい | `/home/runner/work/test_ai1/test_ai1/scripts/create-daily-plan-issue.mjs` |
+| プロジェクトの方針を知りたい | `./PLAN.md` |
+| Copilot の作業ルールを知りたい | `./.github/copilot-instructions.md` |
+| 画面遷移を知りたい | `src/app/router.tsx` |
+| コンテンツの型を知りたい | `src/content/schema.ts` |
+| 日次 issue 自動化を知りたい | `scripts/create-daily-plan-issue.mjs` |
 
 ## この workspace が自動でやっていること 🤖
 
@@ -121,11 +130,13 @@ flowchart TD
 
 ### 関連ファイル
 
+以下も **repo ルート基準の実在パス** です。
+
 | ファイル | 役割 |
 | --- | --- |
-| `.github/workflows/daily-plan-issue.yml` | 日次実行の workflow |
+| `./.github/workflows/daily-plan-issue.yml` | 日次実行の workflow |
 | `scripts/create-daily-plan-issue.mjs` | issue 本文を作って起票する処理 |
-| `.github/prompts/daily-plan-issue.prompt.md` | Copilot に渡すプロンプト |
+| `./.github/prompts/daily-plan-issue.prompt.md` | Copilot に渡すプロンプト |
 
 ## 人と Copilot の分担 🤝
 
@@ -137,10 +148,10 @@ flowchart TD
 
 ## この README の読み方おすすめ順 📖
 
-1. **この README** で全体像をつかむ
-2. **PLAN.md** で中長期の方向性を確認する
-3. **.github/copilot-instructions.md** で運用ルールを確認する
-4. **src/app / src/pages / src/content** を見て実装の実体を知る
+1. `README.md` で全体像をつかむ
+2. `./PLAN.md` で中長期の方向性を確認する
+3. `./.github/copilot-instructions.md` で運用ルールを確認する
+4. `src/app` / `src/pages` / `src/content` を見て実装の実体を知る
 
 ## 迷ったらこの理解で OK 🙌
 
