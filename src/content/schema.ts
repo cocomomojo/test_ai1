@@ -24,6 +24,12 @@ export const hobbyInnovationSchema = z.object({
   summary: z.string().min(1)
 });
 
+export const hobbyActivityLogSchema = z.object({
+  date: z.string().min(1),
+  title: z.string().min(1),
+  description: z.string().min(1)
+});
+
 export const hobbySchema = z.object({
   slug: z.string().min(1),
   name: z.string().min(1),
@@ -41,9 +47,11 @@ export const hobbySchema = z.object({
   firstReleaseItems: z.array(z.string().min(1)).min(2),
   tags: z.array(z.string().min(1)).optional(),
   updatedAt: z.string().optional(),
-  published: z.boolean().optional()
+  published: z.boolean().optional(),
+  activityLog: z.array(hobbyActivityLogSchema).optional()
 });
 
 export const hobbiesSchema = z.array(hobbySchema);
 
 export type Hobby = z.infer<typeof hobbySchema>;
+export type HobbyActivityLog = z.infer<typeof hobbyActivityLogSchema>;

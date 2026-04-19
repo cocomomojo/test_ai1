@@ -134,6 +134,21 @@ export function HobbyDetailPage() {
         {hobby.updatedAt && (
           <p className="mt-2 text-xs text-slate-400">更新: {hobby.updatedAt}</p>
         )}
+
+        {hobby.activityLog && hobby.activityLog.length > 0 && (
+          <div className="mt-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">活動ログ</p>
+            <ul className="mt-4 space-y-3">
+              {hobby.activityLog.map((entry) => (
+                <li key={`${entry.date}-${entry.title}`} className="rounded-[1.5rem] border border-slate-900/10 bg-stone-50 px-5 py-4">
+                  <p className="text-xs font-semibold text-slate-400">{entry.date}</p>
+                  <p className="mt-1 font-semibold text-slate-950">{entry.title}</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{entry.description}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </article>
 
       <aside className="rounded-[2rem] border border-slate-900/10 bg-slate-950 px-8 py-10 text-white">
