@@ -27,17 +27,17 @@
 | Copilot 運用ルール | Plan-first、Task issue、PR レビューの流れを揃える |
 | README / PLAN / instructions | 人が読んでも AI が読んでも迷いにくくする |
 
-## 全体像を図で見る 🗺️
+## 運用全体像を図で見る 🗺️
 
 ```mermaid
 flowchart TD
-    A["👤 オーナー\n改善したいことを考える"] --> B["🤖 Copilot CLI（自動）\n日次 plan issue で候補を提案"]
+    A["⏰ GitHub Actions\n日次 plan issue を定時実行"] --> B["🤖 Copilot CLI（自動）\n改善候補を生成して issue を起票"]
     B --> C["👤 オーナー\n候補を選び Task issue に\n要望・制約・完了条件を書く"]
     C --> D["👤 オーナー\nTask issue を Copilot に assign"]
     D --> E["🤖 Copilot Coding Agent\nplan-first（設計記録）→ 実装 → テスト → PR 作成"]
     E --> F["👤 オーナー\nPR をレビュー・承認・マージ"]
     F --> G["🚀 サイトと workspace が成長"]
-    G --> B
+    G --> A
 ```
 
 ## workspace の中身をやさしく分解すると 🧩
