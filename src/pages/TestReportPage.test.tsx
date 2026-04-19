@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
+import { resolveBasePath } from "../app/basePath";
 import { TestReportPage } from "../pages/TestReportPage";
 
 describe("TestReportPage", () => {
@@ -23,6 +24,9 @@ describe("TestReportPage", () => {
     );
 
     const link = screen.getByRole("link", { name: "最新のテストレポートを開く" });
-    expect(link).toHaveAttribute("href", "/playwright-report/index.html");
+    expect(link).toHaveAttribute(
+      "href",
+      resolveBasePath(import.meta.env.BASE_URL, "playwright-report/index.html")
+    );
   });
 });

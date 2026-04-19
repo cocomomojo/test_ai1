@@ -117,6 +117,44 @@ flowchart TD
 | build / test | 壊れていないかを継続的に確認しやすくする |
 | E2E レポート導線 | `/report` から Playwright レポートへ移動できる |
 
+## 公開とデプロイ
+
+このサイトは GitHub Pages に公開します。
+
+- main に push されると GitHub Actions の deploy workflow が起動します
+- workflow は依存関係のインストール、build、Pages artifact の upload、GitHub Pages への deploy を順に実行します
+- 想定公開 URL は https://cocomomojo.github.io/test_ai1/ です
+- アプリの router とレポートリンクも base path に追従するため、公開環境では `/test_ai1/` 配下で遷移します
+
+### https://cocomomojo.github.io が 404 の場合
+
+これは異常とは限りません。
+この repo は test_ai1 という名前の project Pages 用 repo なので、公開先は通常 https://cocomomojo.github.io/test_ai1/ になります。
+
+https://cocomomojo.github.io のルート直下で公開したい場合は、次のどちらかが必要です。
+
+- repo 名を cocomomojo.github.io にした user Pages 用 repo を使う
+- 独自ドメインを設定する
+
+### 公開 URL も 404 の場合の確認
+
+- GitHub Actions の Deploy to GitHub Pages workflow が成功しているか確認する
+- repository Settings の Pages が GitHub Actions を使う設定になっているか確認する
+- main への push 後の最新 deploy が完了しているか確認する
+
+### 画面を直接開いたり再読込したときだけ 404 の場合
+
+GitHub Pages は SPA の履歴ルーティングを自動では復元しません。
+この repo では build 時に `dist/index.html` を `dist/404.html` としても出力し、子 URL を直接開いた場合でも同じ app shell が読み込まれるようにしています。
+
+- 例: `https://cocomomojo.github.io/test_ai1/hobbies/running` を直接開いても、GitHub Pages が `404.html` を返し、その中身で React アプリが起動します
+- その後の画面判定は router が行うため、既知の route なら該当ページ、未知の route ならアプリ内の 404 画面を表示します
+- それでも表示されない場合は deploy artifact に `404.html` が含まれているか確認してください
+
+> [!NOTE]
+> 以前の実装では router が GitHub Pages の base path を見ていなかったため、404 画面の `Return home` から `https://cocomomojo.github.io/` に戻ることがありました。  
+> 現在は router 側でも base path を参照するため、`https://cocomomojo.github.io/test_ai1/` 配下へ戻る動作に揃えています。
+
 ## 日次 plan issue って何？ 📅
 
 **「今日は何を直す・進めるか」を毎日提案してくれるメモの自動作成機能**です。
