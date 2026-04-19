@@ -1,4 +1,8 @@
+import { resolveBasePath } from "../app/basePath";
+
 export function TestReportPage() {
+  const reportHref = resolveBasePath(import.meta.env.BASE_URL, "playwright-report/index.html");
+
   return (
     <section className="space-y-6">
       <div className="space-y-2">
@@ -24,7 +28,7 @@ export function TestReportPage() {
           </div>
 
           <a
-            href="/playwright-report/index.html"
+            href={reportHref}
             className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
             最新のテストレポートを開く
