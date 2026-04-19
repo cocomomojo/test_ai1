@@ -1,6 +1,27 @@
 import { describe, expect, it } from "vitest";
 
-import { hobbySchema, hobbiesSchema } from "./schema";
+import { hobbySchema, hobbiesSchema, hobbyActivityLogSchema } from "./schema";
+
+describe("hobbyActivityLogSchema", () => {
+  it("date・title・description で検証が通る", () => {
+    const result = hobbyActivityLogSchema.safeParse({
+      date: "2026-04-19",
+      title: "テスト活動",
+      description: "活動の詳細説明"
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("date が空文字の場合は失敗する", () => {
+    const result = hobbyActivityLogSchema.safeParse({ date: "", title: "t", description: "d" });
+    expect(result.success).toBe(false);
+  });
+
+  it("title が空文字の場合は失敗する", () => {
+    const result = hobbyActivityLogSchema.safeParse({ date: "2026-04-19", title: "", description: "d" });
+    expect(result.success).toBe(false);
+  });
+});
 
 describe("hobbySchema", () => {
   const base = {
@@ -89,6 +110,26 @@ describe("hobbySchema", () => {
   it("draftAngles が1件の場合は失敗する", () => {
     const result = hobbySchema.safeParse({ ...base, draftAngles: ["angle1"] });
     expect(result.success).toBe(false);
+  });
+
+  it("activityLog が配列で渡せる", () => {
+    const result = hobbySchema.safeParse({
+      ...base,
+      activityLog: [{ date: "2026-04-19", title: "タイトル", description: "説明" }]
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.activityLog).toHaveLength(1);
+      expect(result.data.activityLog?.[0].date).toBe("2026-04-19");
+    }
+  });
+
+  it("activityLog が未指定でも検証が通る", () => {
+    const result = hobbySchema.safeParse(base);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.activityLog).toBeUndefined();
+    }
   });
 });
 

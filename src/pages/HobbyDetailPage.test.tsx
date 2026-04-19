@@ -29,4 +29,17 @@ describe("HobbyDetailPage", () => {
 
     expect(screen.getByText("この趣味ページはまだ用意されていません。")).toBeInTheDocument();
   });
+
+  it("running の詳細で活動ログが表示される", () => {
+    renderDetail("/hobbies/running");
+
+    expect(screen.getByText("活動ログ")).toBeInTheDocument();
+    expect(screen.getByText("10kmビルドアップ走を試した")).toBeInTheDocument();
+  });
+
+  it("活動ログのない趣味では活動ログセクションが表示されない", () => {
+    renderDetail("/hobbies/making");
+
+    expect(screen.queryByText("活動ログ")).not.toBeInTheDocument();
+  });
 });

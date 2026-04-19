@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 
-import { getPublishedHobbies } from "../content/hobbies";
+import { getPublishedHobbies, getRecentActivityLogs } from "../content/hobbies";
 
 export function HomePage() {
   const publishedHobbies = getPublishedHobbies();
+  const recentLogs = getRecentActivityLogs(5);
   const totalDraftAngles = publishedHobbies.reduce((count, hobby) => count + hobby.draftAngles.length, 0);
   const totalInnovationIdeas = publishedHobbies.reduce(
     (count, hobby) => count + hobby.innovationIdeas.length,
@@ -126,6 +127,41 @@ export function HomePage() {
           </table>
         </div>
       </div>
+
+      {recentLogs.length > 0 && (
+        <div className="rounded-[2rem] border border-slate-900/10 bg-white p-6 shadow-[0_20px_50px_rgba(15,23,42,0.06)] md:p-8">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-slate-500">最近の更新</p>
+              <h3 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
+                最近の活動ログ
+              </h3>
+            </div>
+            <p className="max-w-xl text-sm leading-6 text-slate-600">
+              各テーマで最近やったことを時系列で見られるようにした。
+            </p>
+          </div>
+          <ul className="mt-6 space-y-3">
+            {recentLogs.map((entry) => (
+              <li key={`${entry.hobbySlug}-${entry.date}-${entry.title}`} className="flex gap-4 rounded-[1.5rem] border border-slate-900/10 bg-stone-50 px-5 py-4">
+                <div className="shrink-0">
+                  <p className="text-xs font-semibold text-slate-400">{entry.date}</p>
+                  <Link
+                    to={`/hobbies/${entry.hobbySlug}`}
+                    className="mt-1 inline-block rounded-full bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700 hover:bg-teal-100"
+                  >
+                    {entry.hobbyName}
+                  </Link>
+                </div>
+                <div>
+                  <p className="font-semibold text-slate-950">{entry.title}</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">{entry.description}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="grid gap-4 xl:grid-cols-3">
         {publishedHobbies.map((hobby) => (

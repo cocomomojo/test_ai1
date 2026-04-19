@@ -87,6 +87,23 @@ const hobbySeed = [
       "よく走るコース3本の紹介",
       "今使っているシューズの短評",
       "走った後にやる回復ルーティン"
+    ],
+    activityLog: [
+      {
+        date: "2026-04-19",
+        title: "10kmビルドアップ走を試した",
+        description: "後半2kmだけペースを上げる構成で走り、全体のリズムが整いやすくなった。次回も同じ構成で継続する。"
+      },
+      {
+        date: "2026-04-12",
+        title: "回復ルーティンに睡眠メモを追加",
+        description: "走後の記録に睡眠時間と起床時の疲労感を書き始めた。翌日の重さとの相関が少しずつ見えてきた。"
+      },
+      {
+        date: "2026-04-05",
+        title: "記録テンプレを3点セットに固定",
+        description: "ルート・天気・疲労感の3項目で記録を統一した。見返しやすさが大きく上がった。"
+      }
     ]
   },
   {
@@ -174,6 +191,18 @@ const hobbySeed = [
       "毎朝使っている抽出レシピ",
       "最近よかった豆のメモ",
       "手元の道具の使い分け"
+    ],
+    activityLog: [
+      {
+        date: "2026-04-18",
+        title: "定番レシピと気分転換レシピを分けて記録開始",
+        description: "平日用の固定レシピと週末の試し淹れを別枠で残すようにした。比較がしやすくなった。"
+      },
+      {
+        date: "2026-04-10",
+        title: "豆の短評テンプレを3軸に整理",
+        description: "香り・甘さ・後味の3項目で短評を書き始めた。豆同士の比較が以前より明確になった。"
+      }
     ]
   },
   {
@@ -534,6 +563,23 @@ const hobbySeed = [
       "CI/CD、AWS、E2E、AI の整理表",
       "今考えている組み合わせ仮説 3 本",
       "このサイトで試せる最小の DevOps 改善案"
+    ],
+    activityLog: [
+      {
+        date: "2026-04-17",
+        title: "日次コンテンツ下書きと機能提案を別 issue で回し始めた",
+        description: "これまで1つの issue に混在させていた提案と下書きを分けた。優先判断がしやすくなった。"
+      },
+      {
+        date: "2026-04-09",
+        title: "E2E レポートの公開導線を整備",
+        description: "Playwright レポートを Pages 上から参照できる配線を完成させた。テスト結果の振り返りが楽になった。"
+      },
+      {
+        date: "2026-04-02",
+        title: "CI/CD の直列自動化を確認",
+        description: "build → test → deploy の流れが安定して動くことを確認した。失敗時のログ追いやすさも改善した。"
+      }
     ]
   }
 ] satisfies Hobby[];
@@ -561,4 +607,13 @@ export function filterHobbies(list: typeof hobbies, tag?: string, category?: str
     if (category && h.category !== category) return false;
     return true;
   });
+}
+
+export function getRecentActivityLogs(limit = 5) {
+  return getPublishedHobbies()
+    .flatMap((hobby) =>
+      (hobby.activityLog ?? []).map((entry) => ({ ...entry, hobbySlug: hobby.slug, hobbyName: hobby.name }))
+    )
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, limit);
 }
