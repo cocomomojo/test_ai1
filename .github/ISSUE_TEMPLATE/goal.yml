@@ -1,0 +1,53 @@
+name: 🎯 Goal
+description: 高レベルの成果・マイルストーンを記録する Goal issue
+title: "[Goal] "
+labels:
+  - goal
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Goal** は達成したい成果・マイルストーンを表します。
+        具体的な実装作業は、この Goal に紐づく **Task issue** で管理します。
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: 目的・達成したいこと
+      description: この Goal で最終的に何を実現したいかを書いてください。
+      placeholder: 例）趣味テーマ追加時の変更衝突を減らし、コンテンツが増えても保守しやすくする
+    validations:
+      required: true
+
+  - type: textarea
+    id: background
+    attributes:
+      label: 背景・動機
+      description: なぜこの Goal が必要か、現状の課題を説明してください。
+      placeholder: 例）現状は hobbies.ts 1 ファイルにすべてのテーマが集中していて、変更が衝突しやすい
+
+  - type: textarea
+    id: success_criteria
+    attributes:
+      label: 完了条件（Definition of Done）
+      description: この Goal が達成されたと判断できる基準を書いてください。
+      placeholder: |
+        - 既存の全テストが通る
+        - 新しいテーマを別ファイルで追加できる
+    validations:
+      required: true
+
+  - type: textarea
+    id: related_tasks
+    attributes:
+      label: 関連 Task issue
+      description: この Goal を構成する Task issue のリンクや番号を記録します（後から追記でも可）。
+      placeholder: |
+        - #123
+        - #124
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: メモ・制約
+      description: スコープ外にすること、既知の制約、参考情報などを書いてください。

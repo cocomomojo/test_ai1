@@ -1,0 +1,77 @@
+name: 🛠️ Task
+description: Goal に紐づく実装単位の Task issue
+title: "[Task] "
+labels:
+  - task
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Task** は 1 つの Goal に紐づく実装可能な作業単位です。
+        assign 前に「採用候補・追加要望・制約・完了条件」をこの issue にコメントとして残し、
+        その後 Copilot に assign してください。
+        テンプレートは `.github/templates/copilot-task-request-comment.md` を参照してください。
+
+  - type: input
+    id: parent_goal
+    attributes:
+      label: 親 Goal issue
+      description: この Task が属する Goal issue の番号を書いてください。
+      placeholder: "#12"
+    validations:
+      required: true
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: 目的・やること
+      description: この Task で具体的に何を実装・変更するかを書いてください。
+      placeholder: 例）.github/ISSUE_TEMPLATE に Goal / Task / Knowledge テンプレートを追加する
+    validations:
+      required: true
+
+  - type: textarea
+    id: affected_files
+    attributes:
+      label: 影響ファイル（予想）
+      description: 変更が予想されるファイルやディレクトリを書いてください。
+      placeholder: |
+        - .github/ISSUE_TEMPLATE/
+        - README.md
+
+  - type: textarea
+    id: tests
+    attributes:
+      label: テスト方針
+      description: 単体テスト・E2E テスト・手動確認の方針を書いてください。
+      placeholder: |
+        - 単体テスト: 対象なし（設定ファイル追加のみ）
+        - 手動確認: GitHub の issue 起票画面でテンプレートが表示されることを確認
+
+  - type: textarea
+    id: done_criteria
+    attributes:
+      label: 完了条件（Definition of Done）
+      description: この Task が完了したと判断できる基準を書いてください。
+      placeholder: |
+        - 実装が完了している
+        - 単体テストが通る
+        - PR が作成されている
+    validations:
+      required: true
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: 制約・スコープ外
+      description: やらないこと・触らない範囲を書いてください。
+      placeholder: 例）既存テストの削除・修正は行わない
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: メモ・参考情報
+      description: 日次 plan issue の採用候補番号、参考 URL、その他メモを書いてください。
+      placeholder: |
+        - 元 issue: #XX（日次 plan issue）
+        - 採用候補: 候補1
