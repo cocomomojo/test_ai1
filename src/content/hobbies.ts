@@ -481,7 +481,7 @@ const hobbySeed = [
       "外部記事の要約ではなく、自分の開発と運用に照らして何が効きそうかを整理するためのテーマ。CI/CD を軸に、AWS の配信基盤、E2E の品質担保、AI の提案力をつなぎ、少人数でも回せる実践的な運用の形を考える。",
     status: "active",
     cadence: "毎週",
-    currentFocus: "CI/CD、AWS、E2E、AI を一本の改善ループとしてつなぐ",
+    currentFocus: "E2E レポートを起点に、気づきと次アクションを運用メモとして積み上げる",
     snapshot: [
       {
         label: "観測軸",
@@ -500,7 +500,7 @@ const hobbySeed = [
       }
     ],
     tags: ["DevOps", "CI/CD", "AWS", "E2E", "AI"],
-    updatedAt: "2026-04-19",
+    updatedAt: "2026-04-22",
     published: true,
     highlights: [
       {
@@ -531,9 +531,9 @@ const hobbySeed = [
       },
       {
         theme: "E2E",
-        current: "主要導線の回帰確認を最小構成で行っている。",
-        signal: "レポート公開や失敗パターンの蓄積が次の価値になる。",
-        nextAction: "テスト結果を運用メモに変換する流れを作る。"
+        current: "レポート公開導線が整い、テスト結果をいつでも参照できるようになった。",
+        signal: "レポートを見るだけで終わらせず、違和感・失敗・再確認ポイントを次の改善に変える仕組みが必要。",
+        nextAction: "テスト結果 / 気づき / 次アクション / issue 化する条件の4列で運用メモの型を定める。"
       },
       {
         theme: "AI",
@@ -549,9 +549,9 @@ const hobbySeed = [
         summary: "レビューの論点を次の回帰テスト候補に変え、品質改善の循環を作る。"
       },
       {
-        title: "AWS preview とレポート公開を一本化する",
-        combination: "軽量 preview 環境 x E2E レポート x 要約",
-        summary: "デプロイ結果とテスト結果を同じ文脈で見られるようにし、判断を速くする。"
+        title: "E2E 違和感を3分類して issue 化する",
+        combination: "テスト結果 x 運用メモ x issue 起票",
+        summary: "失敗・表示の違和感・導線の不自然さを「表示 / 導線 / 運用」の3軸で分類し、4列メモ（テスト結果 / 気づき / 次アクション / issue 化する条件）を使って次の改善候補に変換する型を作る。"
       },
       {
         title: "運用 issue から次サイクルを編成する",
@@ -562,7 +562,7 @@ const hobbySeed = [
     draftAngles: [
       "CI/CD と AI を組み合わせる時に自動化しすぎない境界",
       "AWS 上で preview と本番をどう分けるかの考え方",
-      "E2E レポートを単なる成果物で終わらせない運用"
+      "E2E レポートから気づきと次アクションを取り出す4列メモ術"
     ],
     firstReleaseItems: [
       "CI/CD、AWS、E2E、AI の整理表",
@@ -570,6 +570,11 @@ const hobbySeed = [
       "このサイトで試せる最小の DevOps 改善案"
     ],
     activityLog: [
+      {
+        date: "2026-04-22",
+        title: "E2E レポートから運用メモへの変換フロー下書きを開始",
+        description: "レポートを見るだけで終わらせず、違和感・失敗・再確認ポイントを issue 化する流れを整理し始めた。「テスト結果 / 気づき / 次アクション / issue 化する条件」の4列テーブルを骨子に、少人数でも回せる粒度の見極めと次サイクルへ渡すメモの型を検討中。"
+      },
       {
         date: "2026-04-17",
         title: "日次コンテンツ下書きと機能提案を別 issue で回し始めた",
