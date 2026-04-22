@@ -177,6 +177,12 @@ export function HobbyDetailPage() {
         >
           一覧へ戻る
         </Link>
+        <Link
+          to={`/activity?hobby=${hobby.slug}`}
+          className="mt-3 inline-flex rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:border-white/40"
+        >
+          活動ログ一覧
+        </Link>
       </aside>
     </section>
   );

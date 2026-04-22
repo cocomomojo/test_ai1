@@ -75,7 +75,7 @@ test("DevOps 詳細ページが表と組み合わせ案を表示する", async (
   await expect(page.getByRole("heading", { name: "DevOps", level: 2 })).toBeVisible();
   await expect(page.getByRole("img", { name: "DevOps のイメージボード" })).toBeVisible();
   await expect(page.getByRole("table")).toBeVisible();
-  await expect(page.getByText("AWS preview とレポート公開を一本化する")).toBeVisible();
+  await expect(page.getByText("AI レビューから E2E 候補を起票する")).toBeVisible();
 });
 
 test("趣味詳細ページにタグと更新日が表示される", async ({ page }) => {
@@ -83,4 +83,46 @@ test("趣味詳細ページにタグと更新日が表示される", async ({ pa
 
   await expect(page.locator("article span").filter({ hasText: /^運動$/ }).first()).toBeVisible();
   await expect(page.getByText(/更新:/)).toBeVisible();
+});
+
+test("活動ログページが表示される", async ({ page }) => {
+  await page.goto("/activity");
+
+  await expect(page.getByRole("heading", { name: "すべての活動記録" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "ランニング" })).toBeVisible();
+});
+
+test("活動ログページでホーム趣味フィルタを使うと絞り込みできる", async ({ page }) => {
+  await page.goto("/activity");
+
+  await page.getByRole("button", { name: "ランニング" }).click();
+
+  await expect(page.getByRole("link", { name: "ランニング" }).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "絞り込みを解除" })).toBeVisible();
+});
+
+test("ホームの最近の活動ログから活動ログページへ遷移できる", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("link", { name: "すべて見る" }).click();
+
+  await expect(page).toHaveURL("/activity");
+  await expect(page.getByRole("heading", { name: "すべての活動記録" })).toBeVisible();
+});
+
+test("趣味詳細ページの活動ログ一覧リンクがフィルタ付きで遷移する", async ({ page }) => {
+  await page.goto("/hobbies/running");
+
+  await page.getByRole("link", { name: "活動ログ一覧" }).click();
+
+  await expect(page).toHaveURL("/activity?hobby=running");
+  await expect(page.getByRole("heading", { name: "すべての活動記録" })).toBeVisible();
+});
+
+test("ナビゲーションの活動ログリンクが /activity へ遷移する", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("link", { name: "活動ログ" }).click();
+
+  await expect(page).toHaveURL("/activity");
 });

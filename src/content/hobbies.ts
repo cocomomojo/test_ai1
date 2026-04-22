@@ -639,3 +639,21 @@ export function getRecentActivityLogs(limit = 5) {
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, limit);
 }
+
+export function getAllActivityLogs(hobbySlug?: string, category?: string) {
+  return getPublishedHobbies()
+    .filter((hobby) => {
+      if (hobbySlug && hobby.slug !== hobbySlug) return false;
+      if (category && hobby.category !== category) return false;
+      return true;
+    })
+    .flatMap((hobby) =>
+      (hobby.activityLog ?? []).map((entry) => ({
+        ...entry,
+        hobbySlug: hobby.slug,
+        hobbyName: hobby.name,
+        hobbyCategory: hobby.category
+      }))
+    )
+    .sort((a, b) => b.date.localeCompare(a.date));
+}

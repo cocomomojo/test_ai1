@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { filterHobbies, getPublishedHobbies, getRecentActivityLogs, hobbies } from "./hobbies";
+import { filterHobbies, getAllActivityLogs, getPublishedHobbies, getRecentActivityLogs, hobbies } from "./hobbies";
 
 describe("getPublishedHobbies", () => {
   it("published が false の趣味を除外する", () => {
@@ -120,6 +120,51 @@ describe("getRecentActivityLogs", () => {
   it("公開済み趣味のログだけ含む", () => {
     const publishedSlugs = getPublishedHobbies().map((h) => h.slug);
     const result = getRecentActivityLogs(100);
+    expect(result.every((entry) => publishedSlugs.includes(entry.hobbySlug))).toBe(true);
+  });
+});
+
+describe("getAllActivityLogs", () => {
+  it("活動ログを日付の降順で返す", () => {
+    const result = getAllActivityLogs();
+    for (let i = 1; i < result.length; i++) {
+      expect(result[i - 1].date.localeCompare(result[i].date)).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it("hobbySlug・hobbyName・hobbyCategory が含まれる", () => {
+    const result = getAllActivityLogs();
+    if (result.length > 0) {
+      expect(result[0]).toHaveProperty("hobbySlug");
+      expect(result[0]).toHaveProperty("hobbyName");
+      expect(result[0]).toHaveProperty("hobbyCategory");
+    }
+  });
+
+  it("hobbySlug を指定すると該当する趣味のログだけ返す", () => {
+    const published = getPublishedHobbies();
+    const targetSlug = published.find((h) => (h.activityLog ?? []).length > 0)?.slug;
+    if (!targetSlug) return;
+    const result = getAllActivityLogs(targetSlug);
+    expect(result.every((e) => e.hobbySlug === targetSlug)).toBe(true);
+  });
+
+  it("category を指定すると該当カテゴリのログだけ返す", () => {
+    const published = getPublishedHobbies();
+    const targetCategory = published.find((h) => (h.activityLog ?? []).length > 0)?.category;
+    if (!targetCategory) return;
+    const result = getAllActivityLogs(undefined, targetCategory);
+    expect(result.every((e) => e.hobbyCategory === targetCategory)).toBe(true);
+  });
+
+  it("存在しない hobbySlug を指定すると空配列を返す", () => {
+    const result = getAllActivityLogs("存在しないslug");
+    expect(result).toHaveLength(0);
+  });
+
+  it("公開済み趣味のログだけ含む", () => {
+    const publishedSlugs = getPublishedHobbies().map((h) => h.slug);
+    const result = getAllActivityLogs();
     expect(result.every((entry) => publishedSlugs.includes(entry.hobbySlug))).toBe(true);
   });
 });

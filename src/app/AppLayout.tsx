@@ -2,7 +2,8 @@ import { NavLink, Outlet } from "react-router-dom";
 
 const navItems = [
   { to: "/", label: "ホーム" },
-  { to: "/hobbies", label: "趣味一覧" }
+  { to: "/hobbies", label: "趣味一覧" },
+  { to: "/activity", label: "活動ログ" }
 ];
 
 export function AppLayout() {

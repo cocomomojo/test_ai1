@@ -137,9 +137,17 @@ export function HomePage() {
                 最近の活動ログ
               </h3>
             </div>
-            <p className="max-w-xl text-sm leading-6 text-slate-600">
-              各テーマで最近やったことを時系列で見られるようにした。
-            </p>
+            <div className="flex flex-col items-start gap-2 md:items-end">
+              <p className="max-w-xl text-sm leading-6 text-slate-600">
+                各テーマで最近やったことを時系列で見られるようにした。
+              </p>
+              <Link
+                to="/activity"
+                className="rounded-full bg-slate-950 px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+              >
+                すべて見る
+              </Link>
+            </div>
           </div>
           <ul className="mt-6 space-y-3">
             {recentLogs.map((entry) => (

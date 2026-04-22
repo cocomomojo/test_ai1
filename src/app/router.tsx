@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 
 import { normalizeRouterBasename } from "./basePath";
 import { AppLayout } from "./AppLayout";
+import { ActivityPage } from "../pages/ActivityPage";
 import { HobbyDetailPage } from "../pages/HobbyDetailPage";
 import { HobbiesPage } from "../pages/HobbiesPage";
 import { HomePage } from "../pages/HomePage";
@@ -26,6 +27,10 @@ export const appRouter = createBrowserRouter(
         {
           path: "hobbies/:slug",
           element: <HobbyDetailPage />
+        },
+        {
+          path: "activity",
+          element: <ActivityPage />
         },
         {
           path: "report",
