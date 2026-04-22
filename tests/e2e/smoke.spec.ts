@@ -75,7 +75,7 @@ test("DevOps 詳細ページが表と組み合わせ案を表示する", async (
   await expect(page.getByRole("heading", { name: "DevOps", level: 2 })).toBeVisible();
   await expect(page.getByRole("img", { name: "DevOps のイメージボード" })).toBeVisible();
   await expect(page.getByRole("table")).toBeVisible();
-  await expect(page.getByText("AWS preview とレポート公開を一本化する")).toBeVisible();
+  await expect(page.getByText("AI レビューから E2E 候補を起票する")).toBeVisible();
 });
 
 test("趣味詳細ページにタグと更新日が表示される", async ({ page }) => {
