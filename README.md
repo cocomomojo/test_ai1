@@ -56,8 +56,10 @@ flowchart TD
 ```text
 test_ai1/
 ├─ .github/
-│  ├─ workflows/   # GitHub Actions
-│  ├─ prompts/     # Copilot 用プロンプト
+│  ├─ ISSUE_TEMPLATE/  # Goal / Task / Knowledge issue テンプレート
+│  ├─ workflows/       # GitHub Actions
+│  ├─ prompts/         # Copilot 用プロンプト
+│  ├─ templates/       # Copilot task request コメントひな形
 │  └─ copilot-instructions.md
 ├─ src/
 │  ├─ app/        # ルーター・レイアウト・アプリ入り口
@@ -105,6 +107,8 @@ flowchart TD
 | --- | --- |
 | プロジェクトの方針を知りたい | `./PLAN.md` |
 | Copilot の作業ルールを知りたい | `./.github/copilot-instructions.md` |
+| issue を起票したい | `.github/ISSUE_TEMPLATE/`（Goal / Task / Knowledge） |
+| assign 前コメントのひな形が欲しい | `.github/templates/copilot-task-request-comment.md` |
 | 画面遷移を知りたい | `src/app/router.tsx` |
 | コンテンツの型を知りたい | `src/content/schema.ts` |
 | 日次 issue 自動化を知りたい | `scripts/create-daily-plan-issue.mjs` / `scripts/create-daily-content-draft-issue.mjs` |
@@ -245,6 +249,51 @@ flowchart TD
 2. `./PLAN.md` で中長期の方向性を確認する
 3. `./.github/copilot-instructions.md` で Copilot への運用ルールを確認する
 4. `src/app` / `src/pages` / `src/content` を見て実装の実体を知る
+
+## Task issue の起票から assign までの流れ 📝
+
+```mermaid
+flowchart TD
+    A["🎯 Goal issue を起票\n（ISSUE_TEMPLATE: Goal）"] --> B["🛠️ Task issue を起票\n（ISSUE_TEMPLATE: Task）\n親 Goal を記入"]
+    B --> C["📋 assign 前コメントを貼る\n（.github/templates/copilot-task-request-comment.md を参照）\n採用候補・要望・制約・完了条件を記録"]
+    C --> D["🏷️ ラベルを付与\ntask / plan-first など"]
+    D --> E["🤖 Copilot に assign"]
+    E --> F["plan-first → 実装 → PR"]
+```
+
+### issue テンプレート一覧
+
+| テンプレート | 用途 | ラベル |
+| --- | --- | --- |
+| 🎯 Goal | 高レベルの成果・マイルストーン | `goal` |
+| 🛠️ Task | Goal に紐づく実装単位の作業 | `task` |
+| 📚 Knowledge | instructions・テンプレート・再利用できる学びの改善 | `knowledge` |
+
+> [!TIP]
+> GitHub の「New issue」ボタンを押すとテンプレートが選択肢に表示されます。
+
+### 標準ラベルの初期化
+
+リポジトリに初めて標準ラベルを追加するには、Actions の **Init Labels** workflow を手動実行してください。
+
+| ラベル | 意味 |
+| --- | --- |
+| `goal` | 高レベルの成果・マイルストーンを表す Goal issue |
+| `task` | Goal に紐づく実装単位の Task issue |
+| `plan-first` | 実装前に設計・影響確認が必要な issue |
+| `auto-implement` | plan-first 承認後に Copilot が自動実装してよい issue |
+| `blocked` | 外部の判断・依存待ちで作業が止まっている issue |
+| `knowledge` | instructions・テンプレート・再利用できる学びの改善 |
+
+関連ファイル:
+
+| ファイル | 役割 |
+| --- | --- |
+| `.github/ISSUE_TEMPLATE/goal.yml` | Goal issue テンプレート |
+| `.github/ISSUE_TEMPLATE/task.yml` | Task issue テンプレート |
+| `.github/ISSUE_TEMPLATE/knowledge.yml` | Knowledge issue テンプレート |
+| `.github/workflows/init-labels.yml` | 標準ラベル初期化 workflow（手動実行） |
+| `.github/templates/copilot-task-request-comment.md` | assign 前コメントのひな形 |
 
 ## ⚠️ 注意事項
 

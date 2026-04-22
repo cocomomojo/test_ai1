@@ -1,0 +1,74 @@
+name: Init Labels
+
+on:
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  init-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create standard labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [
+              {
+                name: "goal",
+                color: "0075ca",
+                description: "高レベルの成果・マイルストーンを表す Goal issue"
+              },
+              {
+                name: "task",
+                color: "e4e669",
+                description: "Goal に紐づく実装単位の Task issue"
+              },
+              {
+                name: "plan-first",
+                color: "d93f0b",
+                description: "実装前に設計・影響確認が必要な issue"
+              },
+              {
+                name: "auto-implement",
+                color: "0e8a16",
+                description: "plan-first 承認後に Copilot が自動実装してよい issue"
+              },
+              {
+                name: "blocked",
+                color: "b60205",
+                description: "外部の判断・依存待ちで作業が止まっている issue"
+              },
+              {
+                name: "knowledge",
+                color: "5319e7",
+                description: "instructions・テンプレート・再利用できる学びの改善"
+              }
+            ];
+
+            for (const label of labels) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+                console.log(`Created label: ${label.name}`);
+              } catch (err) {
+                if (err.status === 422) {
+                  await github.rest.issues.updateLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    name: label.name,
+                    color: label.color,
+                    description: label.description
+                  });
+                  console.log(`Updated label: ${label.name}`);
+                } else {
+                  throw err;
+                }
+              }
+            }

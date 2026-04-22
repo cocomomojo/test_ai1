@@ -1,0 +1,58 @@
+name: 📚 Knowledge
+description: instructions・スキル・テンプレート・再利用できる学びを改善する Knowledge issue
+title: "[Knowledge] "
+labels:
+  - knowledge
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Knowledge** は開発ルール・instructions・テンプレート・スキルなど、
+        運用基盤の改善を記録します。
+        コードの実装を伴う場合は **Task** を使い、このテンプレートは
+        「気づき・運用改善・ドキュメント更新」に使ってください。
+
+  - type: textarea
+    id: what_learned
+    attributes:
+      label: 気づき・学んだこと
+      description: 今回の作業・運用で得られた気づきや失敗例を書いてください。
+      placeholder: 例）plan-first 記録がないまま実装を進めると、スコープが広がりやすいと分かった
+    validations:
+      required: true
+
+  - type: textarea
+    id: improvement
+    attributes:
+      label: 改善内容・提案
+      description: instructions やテンプレート、README をどう変えるべきかを書いてください。
+      placeholder: |
+        - .github/copilot-instructions.md の plan-first の節に「スコープ確認チェックリスト」を追加する
+        - .github/templates/plan-first.md に「影響ファイル確認」項目を追加する
+
+  - type: textarea
+    id: affected_files
+    attributes:
+      label: 変更対象ファイル
+      description: 更新が必要なファイルを書いてください。
+      placeholder: |
+        - .github/copilot-instructions.md
+        - README.md
+
+  - type: textarea
+    id: done_criteria
+    attributes:
+      label: 完了条件
+      description: この Knowledge issue が完了したと判断できる基準を書いてください。
+      placeholder: |
+        - 対象ファイルが更新されている
+        - 次回以降の作業で手順が迷いなく踏める
+
+  - type: textarea
+    id: related
+    attributes:
+      label: 関連 issue / PR
+      description: この改善のきっかけになった issue や PR を記録します。
+      placeholder: |
+        - #XX（Task issue）
+        - PR #XX
