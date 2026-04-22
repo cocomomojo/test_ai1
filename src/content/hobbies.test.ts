@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { filterHobbies, getAllActivityLogs, getPublishedHobbies, getRecentActivityLogs, hobbies } from "./hobbies";
+import { filterHobbies, getAllActivityLogs, getArticleBySlug, getPublishedHobbies, getRecentActivityLogs, hobbies } from "./hobbies";
 
 describe("getPublishedHobbies", () => {
   it("published が false の趣味を除外する", () => {
@@ -166,5 +166,37 @@ describe("getAllActivityLogs", () => {
     const publishedSlugs = getPublishedHobbies().map((h) => h.slug);
     const result = getAllActivityLogs();
     expect(result.every((entry) => publishedSlugs.includes(entry.hobbySlug))).toBe(true);
+  });
+});
+
+describe("getArticleBySlug", () => {
+  it("DIY の採寸テンプレ記事を取得できる", () => {
+    const article = getArticleBySlug("diy", "half-day-diy-template");
+    expect(article).toBeDefined();
+    expect(article?.title).toBe("半日で終わる DIY のための採寸テンプレと3段工程カード");
+    expect(article?.date).toBe("2026-04-23");
+  });
+
+  it("記事に5つのセクションが含まれる", () => {
+    const article = getArticleBySlug("diy", "half-day-diy-template");
+    expect(article?.sections).toHaveLength(5);
+  });
+
+  it("採寸セクションにテーブルが含まれる", () => {
+    const article = getArticleBySlug("diy", "half-day-diy-template");
+    const section = article?.sections.find((s) => s.heading === "採寸4項目テンプレ");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("項目");
+    expect(section?.table?.rows).toHaveLength(4);
+  });
+
+  it("存在しない趣味 slug では undefined を返す", () => {
+    const article = getArticleBySlug("nonexistent", "half-day-diy-template");
+    expect(article).toBeUndefined();
+  });
+
+  it("存在しない記事 slug では undefined を返す", () => {
+    const article = getArticleBySlug("diy", "nonexistent-article");
+    expect(article).toBeUndefined();
   });
 });

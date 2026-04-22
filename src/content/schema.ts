@@ -30,6 +30,25 @@ export const hobbyActivityLogSchema = z.object({
   description: z.string().min(1)
 });
 
+export const articleTableSchema = z.object({
+  headers: z.array(z.string().min(1)).min(1),
+  rows: z.array(z.array(z.string()))
+});
+
+export const articleSectionSchema = z.object({
+  heading: z.string().min(1),
+  body: z.string().min(1),
+  table: articleTableSchema.optional()
+});
+
+export const hobbyArticleSchema = z.object({
+  slug: z.string().min(1),
+  title: z.string().min(1),
+  date: z.string().min(1),
+  summary: z.string().min(1),
+  sections: z.array(articleSectionSchema).min(1)
+});
+
 export const hobbySchema = z.object({
   slug: z.string().min(1),
   name: z.string().min(1),
@@ -48,10 +67,14 @@ export const hobbySchema = z.object({
   tags: z.array(z.string().min(1)).optional(),
   updatedAt: z.string().optional(),
   published: z.boolean().optional(),
-  activityLog: z.array(hobbyActivityLogSchema).optional()
+  activityLog: z.array(hobbyActivityLogSchema).optional(),
+  articles: z.array(hobbyArticleSchema).optional()
 });
 
 export const hobbiesSchema = z.array(hobbySchema);
 
 export type Hobby = z.infer<typeof hobbySchema>;
 export type HobbyActivityLog = z.infer<typeof hobbyActivityLogSchema>;
+export type HobbyArticle = z.infer<typeof hobbyArticleSchema>;
+export type ArticleSection = z.infer<typeof articleSectionSchema>;
+export type ArticleTable = z.infer<typeof articleTableSchema>;

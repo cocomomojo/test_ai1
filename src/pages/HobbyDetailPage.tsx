@@ -135,6 +135,26 @@ export function HobbyDetailPage() {
           <p className="mt-2 text-xs text-slate-400">更新: {hobby.updatedAt}</p>
         )}
 
+        {hobby.articles && hobby.articles.length > 0 && (
+          <div className="mt-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">記事</p>
+            <ul className="mt-4 space-y-3">
+              {hobby.articles.map((article) => (
+                <li key={article.slug}>
+                  <Link
+                    to={`/hobbies/${hobby.slug}/articles/${article.slug}`}
+                    className="block rounded-[1.5rem] border border-slate-900/10 bg-stone-50 px-5 py-4 transition hover:bg-stone-200/60"
+                  >
+                    <p className="text-xs font-semibold text-slate-400">{article.date}</p>
+                    <p className="mt-1 font-semibold text-slate-950">{article.title}</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">{article.summary}</p>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {hobby.activityLog && hobby.activityLog.length > 0 && (
           <div className="mt-8">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">活動ログ</p>
