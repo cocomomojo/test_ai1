@@ -72,8 +72,11 @@ describe("filterHobbies", () => {
 
   it("keyword を指定すると name が一致する趣味を返す", () => {
     const result = filterHobbies(all, undefined, undefined, "ランニング");
-    expect(result.some((h) => h.name === "ランニング")).toBe(true);
-    expect(result.every((h) => h.name === "ランニング" || h.summary.includes("ランニング") || (h.tags ?? []).some((t) => t.includes("ランニング")) || h.category.includes("ランニング"))).toBe(true);
+    expect(result.some((h) => h.slug === "running")).toBe(true);
+    expect(result.every((h) => {
+      const haystack = [h.name, h.summary, h.category, ...(h.tags ?? [])].join(" ").toLowerCase();
+      return haystack.includes("ランニング");
+    })).toBe(true);
   });
 
   it("keyword を小文字で指定しても大文字小文字を区別しない", () => {
