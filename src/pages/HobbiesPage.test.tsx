@@ -75,4 +75,42 @@ describe("HobbiesPage", () => {
     expect(screen.getByRole("heading", { name: "ランニング" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "コーヒー" })).toBeInTheDocument();
   });
+
+  it("キーワード検索フィールドが表示される", () => {
+    renderPage();
+    expect(screen.getByRole("searchbox", { name: "キーワード" })).toBeInTheDocument();
+  });
+
+  it("キーワードを入力すると一致する趣味だけ残る", () => {
+    renderPage();
+    fireEvent.change(screen.getByRole("searchbox", { name: "キーワード" }), {
+      target: { value: "ランニング" }
+    });
+    expect(screen.getByRole("heading", { name: "ランニング" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "コーヒー" })).not.toBeInTheDocument();
+  });
+
+  it("キーワード入力後に「絞り込みを解除」ボタンが表示される", () => {
+    renderPage();
+    fireEvent.change(screen.getByRole("searchbox", { name: "キーワード" }), {
+      target: { value: "ランニング" }
+    });
+    expect(screen.getByRole("button", { name: "絞り込みを解除" })).toBeInTheDocument();
+  });
+
+  it("キーワード絞り込み後に解除すると全件に戻る", () => {
+    renderPage();
+    fireEvent.change(screen.getByRole("searchbox", { name: "キーワード" }), {
+      target: { value: "ランニング" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "絞り込みを解除" }));
+    expect(screen.getByRole("heading", { name: "ランニング" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "コーヒー" })).toBeInTheDocument();
+  });
+
+  it("q クエリパラメータでキーワード検索が初期反映される", () => {
+    renderPage("?q=コーヒー");
+    expect(screen.getByRole("heading", { name: "コーヒー" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "ランニング" })).not.toBeInTheDocument();
+  });
 });

@@ -6,12 +6,18 @@ export function HobbiesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTag = searchParams.get("tag") ?? "";
   const activeCategory = searchParams.get("category") ?? "";
+  const activeKeyword = searchParams.get("q") ?? "";
 
   const publishedHobbies = getPublishedHobbies();
   const allCategories = [...new Set(publishedHobbies.map((h) => h.category))];
   const allTags = [...new Set(publishedHobbies.flatMap((h) => h.tags ?? []))];
 
-  const filteredHobbies = filterHobbies(publishedHobbies, activeTag || undefined, activeCategory || undefined);
+  const filteredHobbies = filterHobbies(
+    publishedHobbies,
+    activeTag || undefined,
+    activeCategory || undefined,
+    activeKeyword || undefined
+  );
   const totalDraftAngles = publishedHobbies.reduce((count, hobby) => count + hobby.draftAngles.length, 0);
 
   function toggleTag(tag: string) {
@@ -35,6 +41,18 @@ export function HobbiesPage() {
       } else {
         next.set("category", cat);
         next.delete("tag");
+      }
+      return next;
+    });
+  }
+
+  function setKeyword(value: string) {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (value) {
+        next.set("q", value);
+      } else {
+        next.delete("q");
       }
       return next;
     });
@@ -71,6 +89,19 @@ export function HobbiesPage() {
       </div>
 
       <div className="space-y-3 rounded-2xl border border-slate-900/5 bg-stone-50 p-4">
+        <div className="flex items-center gap-2">
+          <label htmlFor="hobby-search" className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            キーワード
+          </label>
+          <input
+            id="hobby-search"
+            type="search"
+            value={activeKeyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            placeholder="名前・概要・タグで検索"
+            className="flex-1 rounded-full border border-slate-900/10 bg-white px-4 py-1.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-400"
+          />
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">カテゴリ</span>
           {allCategories.map((cat) => (
@@ -105,7 +136,7 @@ export function HobbiesPage() {
             </button>
           ))}
         </div>
-        {(activeTag || activeCategory) && (
+        {(activeTag || activeCategory || activeKeyword) && (
           <button onClick={clearFilter} className="text-xs text-slate-500 underline hover:text-slate-700">
             絞り込みを解除
           </button>

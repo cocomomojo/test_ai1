@@ -69,6 +69,30 @@ describe("filterHobbies", () => {
     const result = filterHobbies(all);
     expect(result).toHaveLength(all.length);
   });
+
+  it("keyword を指定すると name が一致する趣味を返す", () => {
+    const result = filterHobbies(all, undefined, undefined, "ランニング");
+    expect(result.some((h) => h.name === "ランニング")).toBe(true);
+    expect(result.every((h) => h.name === "ランニング" || h.summary.includes("ランニング") || (h.tags ?? []).some((t) => t.includes("ランニング")) || h.category.includes("ランニング"))).toBe(true);
+  });
+
+  it("keyword を小文字で指定しても大文字小文字を区別しない", () => {
+    const result = filterHobbies(all, undefined, undefined, "devops");
+    expect(result.some((h) => h.slug === "devops")).toBe(true);
+  });
+
+  it("存在しない keyword を指定すると空配列を返す", () => {
+    const result = filterHobbies(all, undefined, undefined, "存在しないキーワードxyz");
+    expect(result).toHaveLength(0);
+  });
+
+  it("keyword と category を同時に指定すると両条件の AND で絞り込む", () => {
+    const running = all.find((h) => h.slug === "running");
+    if (!running) throw new Error("running not found");
+    const result = filterHobbies(all, undefined, running.category, "ランニング");
+    expect(result.some((h) => h.slug === "running")).toBe(true);
+    expect(result.every((h) => h.category === running.category)).toBe(true);
+  });
 });
 
 describe("getRecentActivityLogs", () => {

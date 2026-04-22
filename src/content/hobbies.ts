@@ -606,10 +606,15 @@ export function getPublishedHobbies() {
     });
 }
 
-export function filterHobbies(list: typeof hobbies, tag?: string, category?: string) {
+export function filterHobbies(list: typeof hobbies, tag?: string, category?: string, keyword?: string) {
+  const q = keyword?.trim().toLowerCase();
   return list.filter((h) => {
     if (tag && !(h.tags ?? []).includes(tag)) return false;
     if (category && h.category !== category) return false;
+    if (q) {
+      const haystack = [h.name, h.summary, h.category, ...(h.tags ?? [])].join(" ").toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
     return true;
   });
 }
