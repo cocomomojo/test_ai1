@@ -126,3 +126,25 @@ test("ナビゲーションの活動ログリンクが /activity へ遷移する
 
   await expect(page).toHaveURL("/activity");
 });
+
+test("趣味一覧でキーワード検索すると一致する趣味だけ表示される", async ({ page }) => {
+  await page.goto("/hobbies");
+
+  await page.getByRole("searchbox", { name: "キーワード" }).fill("ランニング");
+
+  await expect(page.getByRole("heading", { name: "ランニング" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "コーヒー" })).not.toBeVisible();
+  await expect(page.getByRole("button", { name: "絞り込みを解除" })).toBeVisible();
+});
+
+test("存在しないキーワードで検索すると0件メッセージと解除ボタンが表示される", async ({ page }) => {
+  await page.goto("/hobbies?q=存在しないキーワードxyz");
+
+  await expect(page.getByText("該当する趣味が見つかりません。")).toBeVisible();
+  await expect(page.getByRole("button", { name: "絞り込みを解除" })).toBeVisible();
+
+  await page.getByRole("button", { name: "絞り込みを解除" }).click();
+
+  await expect(page.getByRole("heading", { name: "ランニング" })).toBeVisible();
+  await expect(page.getByText("該当する趣味が見つかりません。")).not.toBeVisible();
+});
