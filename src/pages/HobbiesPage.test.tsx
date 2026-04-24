@@ -113,4 +113,27 @@ describe("HobbiesPage", () => {
     expect(screen.getByRole("heading", { name: "コーヒー" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "ランニング" })).not.toBeInTheDocument();
   });
+
+  it("tag クエリパラメータでタグ絞り込みが初期反映される", () => {
+    renderPage("?tag=運動");
+    expect(screen.getByRole("heading", { name: "ランニング" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "コーヒー" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "絞り込みを解除" })).toBeInTheDocument();
+  });
+
+  it("category クエリパラメータでカテゴリ絞り込みが初期反映される", () => {
+    renderPage("?category=身体を動かす");
+    expect(screen.getByRole("heading", { name: "ランニング" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "コーヒー" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "絞り込みを解除" })).toBeInTheDocument();
+  });
+
+  it("一致なしのキーワードを入力すると0件メッセージを表示する", () => {
+    renderPage();
+    fireEvent.change(screen.getByRole("searchbox", { name: "キーワード" }), {
+      target: { value: "存在しないキーワードxyz" }
+    });
+    expect(screen.getByText("該当する趣味が見つかりません。")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "絞り込みを解除" })).toBeInTheDocument();
+  });
 });
