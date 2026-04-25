@@ -60,4 +60,37 @@ describe("HobbyArticlePage", () => {
 
     expect(screen.getByText("この記事はまだ用意されていません。")).toBeInTheDocument();
   });
+
+  it("コーヒーの2系統レシピ記事を表示する", () => {
+    renderArticle("/hobbies/coffee/articles/morning-recipe-two-track");
+
+    expect(screen.getByRole("heading", { name: "朝の定番レシピと気分転換レシピをどう切り分けるか" })).toBeInTheDocument();
+    expect(screen.getByText("2026-04-26")).toBeInTheDocument();
+  });
+
+  it("定番レシピ固定項目の表を表示する", () => {
+    renderArticle("/hobbies/coffee/articles/morning-recipe-two-track");
+
+    expect(screen.getByText("定番レシピの固定項目")).toBeInTheDocument();
+    expect(screen.getAllByText("湯量").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("抽出時間").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("挽き目").length).toBeGreaterThan(0);
+  });
+
+  it("2系統比較表を表示する", () => {
+    renderArticle("/hobbies/coffee/articles/morning-recipe-two-track");
+
+    expect(screen.getByText("気分転換レシピで動かす項目")).toBeInTheDocument();
+    expect(screen.getByText("定番レシピ")).toBeInTheDocument();
+    expect(screen.getByText("気分転換レシピ")).toBeInTheDocument();
+  });
+
+  it("豆の短評と道具メモの表を表示する", () => {
+    renderArticle("/hobbies/coffee/articles/morning-recipe-two-track");
+
+    expect(screen.getByText("豆の短評3軸と道具メモの残し方")).toBeInTheDocument();
+    expect(screen.getByText("香り")).toBeInTheDocument();
+    expect(screen.getByText("甘さ")).toBeInTheDocument();
+    expect(screen.getByText("後味")).toBeInTheDocument();
+  });
 });

@@ -199,4 +199,32 @@ describe("getArticleBySlug", () => {
     const article = getArticleBySlug("diy", "nonexistent-article");
     expect(article).toBeUndefined();
   });
+
+  it("コーヒーの2系統レシピ記事を取得できる", () => {
+    const article = getArticleBySlug("coffee", "morning-recipe-two-track");
+    expect(article).toBeDefined();
+    expect(article?.title).toBe("朝の定番レシピと気分転換レシピをどう切り分けるか");
+    expect(article?.date).toBe("2026-04-26");
+  });
+
+  it("コーヒー記事に5つのセクションが含まれる", () => {
+    const article = getArticleBySlug("coffee", "morning-recipe-two-track");
+    expect(article?.sections).toHaveLength(5);
+  });
+
+  it("定番レシピ固定項目セクションにテーブルが含まれる", () => {
+    const article = getArticleBySlug("coffee", "morning-recipe-two-track");
+    const section = article?.sections.find((s) => s.heading === "定番レシピの固定項目");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("固定項目");
+    expect(section?.table?.rows).toHaveLength(3);
+  });
+
+  it("気分転換レシピセクションに2系統比較テーブルが含まれる", () => {
+    const article = getArticleBySlug("coffee", "morning-recipe-two-track");
+    const section = article?.sections.find((s) => s.heading === "気分転換レシピで動かす項目");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("2系統");
+    expect(section?.table?.rows).toHaveLength(2);
+  });
 });
