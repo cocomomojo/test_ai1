@@ -3,6 +3,8 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
+import { classifyStaleTaskIssues, compactText, formatStaleTaskNote } from "./issue-utils.mjs";
+
 const repository = process.env.REPOSITORY ?? process.env.GITHUB_REPOSITORY;
 
 if (!repository) {
@@ -15,6 +17,7 @@ const title = `日次プラン提案 ${planDate}`;
 
 const openIssues = listIssues("open", 20);
 const recentClosedIssues = listIssues("closed", 10);
+const staleTaskIssues = classifyStaleTaskIssues(openIssues);
 const existingIssue = openIssues.find((issue) => issue.title === title);
 
 if (existingIssue) {
@@ -26,7 +29,8 @@ const prompt = buildPrompt({
   repository,
   planDate,
   openIssues,
-  recentClosedIssues
+  recentClosedIssues,
+  staleTaskIssues
 });
 
 const generatedBody = normalizeGeneratedBody(generateIssueBody(prompt));
@@ -69,7 +73,7 @@ try {
   rmSync(tempDir, { recursive: true, force: true });
 }
 
-function buildPrompt({ repository: currentRepository, planDate: currentPlanDate, openIssues: currentOpenIssues, recentClosedIssues: currentClosedIssues }) {
+function buildPrompt({ repository: currentRepository, planDate: currentPlanDate, openIssues: currentOpenIssues, recentClosedIssues: currentClosedIssues, staleTaskIssues: currentStaleTaskIssues }) {
   const promptTemplate = readWorkspaceFile(".github/prompts/daily-plan-issue.prompt.md");
 
   return promptTemplate
@@ -79,7 +83,8 @@ function buildPrompt({ repository: currentRepository, planDate: currentPlanDate,
     .replaceAll("{{PLAN_CONTENT}}", readWorkspaceFile("PLAN.md"))
     .replaceAll("{{COPILOT_INSTRUCTIONS}}", readWorkspaceFile(".github/copilot-instructions.md"))
     .replaceAll("{{OPEN_ISSUES}}", JSON.stringify(currentOpenIssues, null, 2))
-    .replaceAll("{{RECENT_CLOSED_ISSUES}}", JSON.stringify(currentClosedIssues, null, 2));
+    .replaceAll("{{RECENT_CLOSED_ISSUES}}", JSON.stringify(currentClosedIssues, null, 2))
+    .replaceAll("{{STALE_TASK_ISSUES}}", formatStaleTaskNote(currentStaleTaskIssues));
 }
 
 function generateIssueBody(prompt) {
@@ -130,7 +135,7 @@ function listIssues(state, limit) {
     "--limit",
     String(limit),
     "--json",
-    "number,title,body,labels,url"
+    "number,title,body,labels,url,updatedAt"
   ]);
 
   return JSON.parse(raw).map((issue) => ({
@@ -138,7 +143,8 @@ function listIssues(state, limit) {
     title: issue.title,
     body: compactText(issue.body),
     labels: issue.labels.map((label) => label.name),
-    url: issue.url
+    url: issue.url,
+    updatedAt: issue.updatedAt
   }));
 }
 
@@ -180,16 +186,6 @@ function normalizeGeneratedBody(value) {
   }
 
   return withoutFence;
-}
-
-function compactText(value) {
-  const singleLine = value.replace(/\s+/g, " ").trim();
-
-  if (singleLine.length <= 240) {
-    return singleLine;
-  }
-
-  return `${singleLine.slice(0, 237)}...`;
 }
 
 function toBoolean(value) {
