@@ -43,6 +43,8 @@
 - Use daily plan issues to record candidate selection, but place implementation requests on the target task issue before assigning it to Copilot.
 - Treat the task issue title/body and the latest pre-assignment task issue comment that records the accepted candidate, extra requirements, constraints, and definition of done as the authoritative execution context.
 - Keep issue titles, PR titles, and issue comments in Japanese for this repository.
+- When a task issue's full scope has been implemented and merged, close the issue with a comment summarising what was implemented. Do not leave task issues open after their work is done.
+- When generating a plan-first record or daily plan, verify that any referenced open task issues still represent unimplemented work before treating them as active todos.
 
 ## Plan-First Workflow
 
