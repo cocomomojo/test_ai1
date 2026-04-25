@@ -10,6 +10,7 @@
 - 候補ごとに「目的」「主な変更点」「必要なテスト」「リスク」を短く含める。
 - 候補ごとに Mermaid 記法で図を 1 つ生成する（フロー図・シーケンス図・表のいずれか、内容に合うものを選ぶ）。
 - 既存の open issue と最近の closed issue を見て、重複提案を避ける。
+- "実装済みの可能性がある Task Issues" に挙がった issue のテーマは提案しない。ただし、まだ実装されていないと判断できる場合は提案してよい。
 - secrets や token の値は絶対に書かない。
 - 外部参照は行わず、渡された文脈だけで判断する。
 
@@ -72,3 +73,6 @@ Open Issues:
 
 Recent Closed Issues:
 {{RECENT_CLOSED_ISSUES}}
+
+実装済みの可能性がある Task Issues (14日以上更新のない task ラベル issue):
+{{STALE_TASK_ISSUES}}
