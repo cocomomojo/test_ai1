@@ -53,3 +53,23 @@ export function formatStaleTaskNote(staleIssues) {
     )
     .join("\n");
 }
+
+/**
+ * Generates a close comment for a task issue that has been implemented.
+ *
+ * @param {object} opts
+ * @param {string} opts.summary - A short description of what was implemented.
+ * @param {string} [opts.prUrl] - URL of the merged pull request, if available.
+ * @returns {string}
+ */
+export function formatTaskCloseComment({ summary, prUrl }) {
+  const lines = ["## 実装完了", "", summary];
+
+  if (prUrl) {
+    lines.push("", `実装 PR: ${prUrl}`);
+  }
+
+  lines.push("", "このタスクは実装が確認されたためクローズします。");
+
+  return lines.join("\n");
+}
