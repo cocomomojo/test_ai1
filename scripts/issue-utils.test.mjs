@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { classifyStaleTaskIssues, compactText, formatStaleTaskNote } from "./issue-utils.mjs";
+import { classifyStaleTaskIssues, compactText, formatStaleTaskNote, formatTaskCloseComment } from "./issue-utils.mjs";
 
 describe("compactText", () => {
   it("240文字以下のテキストはそのまま返す", () => {
@@ -122,5 +122,27 @@ describe("formatStaleTaskNote", () => {
     const issue = { number: 3, title: "Issue C", updatedAt: undefined, url: "https://github.com/r/i/3" };
     const result = formatStaleTaskNote([issue]);
     expect(result).toContain("不明");
+  });
+});
+
+describe("formatTaskCloseComment", () => {
+  it("summary だけで正しい本文を返す", () => {
+    const result = formatTaskCloseComment({ summary: "GitHub Pages の公開フローを追加した。" });
+    expect(result).toContain("## 実装完了");
+    expect(result).toContain("GitHub Pages の公開フローを追加した。");
+    expect(result).toContain("このタスクは実装が確認されたためクローズします。");
+  });
+
+  it("prUrl が指定された場合に URL を含む", () => {
+    const result = formatTaskCloseComment({
+      summary: "デプロイ処理を実装した。",
+      prUrl: "https://github.com/example/repo/pull/42"
+    });
+    expect(result).toContain("実装 PR: https://github.com/example/repo/pull/42");
+  });
+
+  it("prUrl が未指定の場合は PR 行を含まない", () => {
+    const result = formatTaskCloseComment({ summary: "実装完了。" });
+    expect(result).not.toContain("実装 PR:");
   });
 });

@@ -13,6 +13,7 @@ if (!repository) {
 
 const planDate = resolvePlanDate(process.env.PLAN_DATE);
 const dryRun = toBoolean(process.env.DRY_RUN);
+const request = process.env.REQUEST?.trim() || null;
 const title = `日次プラン提案 ${planDate}`;
 
 const openIssues = listIssues("open", 20);
@@ -30,7 +31,8 @@ const prompt = buildPrompt({
   planDate,
   openIssues,
   recentClosedIssues,
-  staleTaskIssues
+  staleTaskIssues,
+  request
 });
 
 const generatedBody = normalizeGeneratedBody(generateIssueBody(prompt));
@@ -73,8 +75,12 @@ try {
   rmSync(tempDir, { recursive: true, force: true });
 }
 
-function buildPrompt({ repository: currentRepository, planDate: currentPlanDate, openIssues: currentOpenIssues, recentClosedIssues: currentClosedIssues, staleTaskIssues: currentStaleTaskIssues }) {
+function buildPrompt({ repository: currentRepository, planDate: currentPlanDate, openIssues: currentOpenIssues, recentClosedIssues: currentClosedIssues, staleTaskIssues: currentStaleTaskIssues, request: currentRequest }) {
   const promptTemplate = readWorkspaceFile(".github/prompts/daily-plan-issue.prompt.md");
+
+  const requestSection = currentRequest
+    ? `\n今日の要望:\n${currentRequest}`
+    : "";
 
   return promptTemplate
     .replaceAll("{{PLAN_DATE}}", currentPlanDate)
@@ -84,7 +90,8 @@ function buildPrompt({ repository: currentRepository, planDate: currentPlanDate,
     .replaceAll("{{COPILOT_INSTRUCTIONS}}", readWorkspaceFile(".github/copilot-instructions.md"))
     .replaceAll("{{OPEN_ISSUES}}", JSON.stringify(currentOpenIssues, null, 2))
     .replaceAll("{{RECENT_CLOSED_ISSUES}}", JSON.stringify(currentClosedIssues, null, 2))
-    .replaceAll("{{STALE_TASK_ISSUES}}", formatStaleTaskNote(currentStaleTaskIssues));
+    .replaceAll("{{STALE_TASK_ISSUES}}", formatStaleTaskNote(currentStaleTaskIssues))
+    .replaceAll("{{REQUEST}}", requestSection);
 }
 
 function generateIssueBody(prompt) {

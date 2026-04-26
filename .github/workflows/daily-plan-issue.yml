@@ -14,6 +14,10 @@ name: Daily Plan Issue
         description: "タイトルに使う日付 (YYYY-MM-DD)"
         required: false
         type: string
+      request:
+        description: "今回の実行への要望（任意。候補選定や内容に反映される）"
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -41,5 +45,6 @@ jobs:
           REPOSITORY: ${{ github.repository }}
           PLAN_DATE: ${{ inputs.plan_date }}
           DRY_RUN: ${{ inputs.dry_run }}
+          REQUEST: ${{ inputs.request }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_CLI_TOKEN }}
