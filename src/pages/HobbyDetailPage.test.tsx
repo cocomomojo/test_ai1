@@ -38,7 +38,7 @@ describe("HobbyDetailPage", () => {
   });
 
   it("活動ログのない趣味では活動ログセクションが表示されない", () => {
-    renderDetail("/hobbies/making");
+    renderDetail("/hobbies/curry");
 
     expect(screen.queryByText("活動ログ")).not.toBeInTheDocument();
   });
