@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { classifyStaleTaskIssues, compactText, formatStaleTaskNote } from "./issue-utils.mjs";
+import { classifyStaleTaskIssues, compactText, filterTaskIssues, formatOpenTaskIssues, formatStaleTaskNote } from "./issue-utils.mjs";
 
 const repository = process.env.REPOSITORY ?? process.env.GITHUB_REPOSITORY;
 
@@ -19,6 +19,7 @@ const title = `日次プラン提案 ${planDate}`;
 const openIssues = listIssues("open", 20);
 const recentClosedIssues = listIssues("closed", 10);
 const staleTaskIssues = classifyStaleTaskIssues(openIssues);
+const openTaskIssues = filterTaskIssues(openIssues);
 const existingIssue = openIssues.find((issue) => issue.title === title);
 
 if (existingIssue) {
@@ -32,6 +33,7 @@ const prompt = buildPrompt({
   openIssues,
   recentClosedIssues,
   staleTaskIssues,
+  openTaskIssues,
   request
 });
 
@@ -75,7 +77,7 @@ try {
   rmSync(tempDir, { recursive: true, force: true });
 }
 
-function buildPrompt({ repository: currentRepository, planDate: currentPlanDate, openIssues: currentOpenIssues, recentClosedIssues: currentClosedIssues, staleTaskIssues: currentStaleTaskIssues, request: currentRequest }) {
+function buildPrompt({ repository: currentRepository, planDate: currentPlanDate, openIssues: currentOpenIssues, recentClosedIssues: currentClosedIssues, staleTaskIssues: currentStaleTaskIssues, openTaskIssues: currentOpenTaskIssues, request: currentRequest }) {
   const promptTemplate = readWorkspaceFile(".github/prompts/daily-plan-issue.prompt.md");
 
   const requestSection = currentRequest
@@ -91,6 +93,7 @@ function buildPrompt({ repository: currentRepository, planDate: currentPlanDate,
     .replaceAll("{{OPEN_ISSUES}}", JSON.stringify(currentOpenIssues, null, 2))
     .replaceAll("{{RECENT_CLOSED_ISSUES}}", JSON.stringify(currentClosedIssues, null, 2))
     .replaceAll("{{STALE_TASK_ISSUES}}", formatStaleTaskNote(currentStaleTaskIssues))
+    .replaceAll("{{OPEN_TASK_ISSUES}}", formatOpenTaskIssues(currentOpenTaskIssues))
     .replaceAll("{{REQUEST}}", requestSection);
 }
 

@@ -10,12 +10,18 @@
 - 候補ごとに「目的」「主な変更点」「必要なテスト」「リスク」を短く含める。
 - 候補ごとに Mermaid 記法で図を 1 つ生成する（フロー図・シーケンス図・表のいずれか、内容に合うものを選ぶ）。
 - 既存の open issue と最近の closed issue を見て、重複提案を避ける。
-- "実装済みの可能性がある Task Issues" に挙がった issue のテーマは提案しない。ただし、まだ実装されていないと判断できる場合は提案してよい。
+- "全 open Task Issues" に挙がった issue はすべて README/PLAN と照合し、実装済みと判断できるものを「棚卸し」セクションに列挙する。実装済みかどうかの判断には README/PLAN の完了マーク（✅）や実装済みの記述を根拠にする。
+- "棚卸し" および "実装済みの可能性がある Task Issues" に挙げた issue のテーマは改善候補として提案しない。ただし、まだ実装されていないと判断できる場合は提案してよい。
 - secrets や token の値は絶対に書かない。
 - 外部参照は行わず、渡された文脈だけで判断する。
 - 「今日の要望」が指定されている場合は、その内容を最優先で反映し、候補の方向性や選定に活かす。
 
 出力フォーマット:
+## 棚卸し: クローズ推奨 Task Issues
+全 open Task Issues を README/PLAN と照合し、実装済みと判断できる issue を列挙する。
+形式: `#番号 タイトル — クローズ推奨理由（1文）`
+実装済みの issue がない場合は「(なし)」とする。
+
 ## 今日の状況
 - 箇条書き 2-4 件
 
@@ -74,6 +80,9 @@ Open Issues:
 
 Recent Closed Issues:
 {{RECENT_CLOSED_ISSUES}}
+
+全 open Task Issues (README/PLAN との照合対象):
+{{OPEN_TASK_ISSUES}}
 
 実装済みの可能性がある Task Issues (14日以上更新のない task ラベル issue):
 {{STALE_TASK_ISSUES}}

@@ -55,6 +55,37 @@ export function formatStaleTaskNote(staleIssues) {
 }
 
 /**
+ * Filters task-labeled issues from a list of issues.
+ *
+ * @param {Array<{number: number, title: string, labels: string[], updatedAt?: string, url: string}>} issues
+ * @returns {Array<{number: number, title: string, labels: string[], updatedAt?: string, url: string}>}
+ */
+export function filterTaskIssues(issues) {
+  return issues.filter((issue) => issue.labels.includes("task"));
+}
+
+/**
+ * Formats open task issues as a human-readable string for prompt context.
+ * Used to cross-reference open tasks against README/PLAN to detect implemented-but-open issues.
+ * Returns "(なし)" if no open task issues are present.
+ *
+ * @param {Array<{number: number, title: string, labels: string[], updatedAt?: string, url: string}>} taskIssues
+ * @returns {string}
+ */
+export function formatOpenTaskIssues(taskIssues) {
+  if (taskIssues.length === 0) {
+    return "(なし)";
+  }
+
+  return taskIssues
+    .map(
+      (issue) =>
+        `#${issue.number} ${issue.title} (最終更新: ${issue.updatedAt?.slice(0, 10) ?? "不明"}) ${issue.url}`
+    )
+    .join("\n");
+}
+
+/**
  * Generates a close comment for a task issue that has been implemented.
  *
  * @param {object} opts
