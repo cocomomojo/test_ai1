@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { classifyStaleTaskIssues, compactText, formatStaleTaskNote, formatTaskCloseComment } from "./issue-utils.mjs";
+import { classifyStaleTaskIssues, compactText, filterTaskIssues, formatOpenTaskIssues, formatStaleTaskNote, formatTaskCloseComment } from "./issue-utils.mjs";
 
 describe("compactText", () => {
   it("240文字以下のテキストはそのまま返す", () => {
@@ -144,5 +144,87 @@ describe("formatTaskCloseComment", () => {
   it("prUrl が未指定の場合は PR 行を含まない", () => {
     const result = formatTaskCloseComment({ summary: "実装完了。" });
     expect(result).not.toContain("実装 PR:");
+  });
+});
+
+describe("filterTaskIssues", () => {
+  const makeIssue = (overrides = {}) => ({
+    number: 1,
+    title: "テスト issue",
+    labels: ["task"],
+    updatedAt: "2026-04-01T00:00:00Z",
+    url: "https://github.com/example/repo/issues/1",
+    ...overrides
+  });
+
+  it("task ラベルを持つ issue だけを返す", () => {
+    const issues = [
+      makeIssue({ number: 1, labels: ["task"] }),
+      makeIssue({ number: 2, labels: ["goal"] }),
+      makeIssue({ number: 3, labels: ["task", "plan-first"] })
+    ];
+    const result = filterTaskIssues(issues);
+    expect(result).toHaveLength(2);
+    expect(result.map((i) => i.number)).toEqual([1, 3]);
+  });
+
+  it("task ラベルがない issue はすべて除外する", () => {
+    const issues = [
+      makeIssue({ labels: ["goal"] }),
+      makeIssue({ labels: ["plan-first"] }),
+      makeIssue({ labels: ["knowledge"] })
+    ];
+    expect(filterTaskIssues(issues)).toHaveLength(0);
+  });
+
+  it("空の issue 一覧では空配列を返す", () => {
+    expect(filterTaskIssues([])).toHaveLength(0);
+  });
+
+  it("すべてが task ラベルを持つ場合はすべて返す", () => {
+    const issues = [
+      makeIssue({ number: 1 }),
+      makeIssue({ number: 2 }),
+      makeIssue({ number: 3 })
+    ];
+    expect(filterTaskIssues(issues)).toHaveLength(3);
+  });
+});
+
+describe("formatOpenTaskIssues", () => {
+  it("task issue がなければ '(なし)' を返す", () => {
+    expect(formatOpenTaskIssues([])).toBe("(なし)");
+  });
+
+  it("issue 番号・タイトル・最終更新日・URL を含む文字列を返す", () => {
+    const issue = {
+      number: 6,
+      title: "GitHub Pages 向けの公開フローを追加",
+      updatedAt: "2026-04-18T13:15:03Z",
+      url: "https://github.com/cocomomojo/test_ai1/issues/6"
+    };
+    const result = formatOpenTaskIssues([issue]);
+    expect(result).toContain("#6");
+    expect(result).toContain("GitHub Pages 向けの公開フローを追加");
+    expect(result).toContain("2026-04-18");
+    expect(result).toContain("https://github.com/cocomomojo/test_ai1/issues/6");
+  });
+
+  it("複数の issue を改行で区切る", () => {
+    const issues = [
+      { number: 5, title: "Issue A", updatedAt: "2026-04-10T00:00:00Z", url: "https://github.com/r/i/5" },
+      { number: 6, title: "Issue B", updatedAt: "2026-04-18T00:00:00Z", url: "https://github.com/r/i/6" }
+    ];
+    const result = formatOpenTaskIssues(issues);
+    const lines = result.split("\n");
+    expect(lines).toHaveLength(2);
+    expect(lines[0]).toContain("#5");
+    expect(lines[1]).toContain("#6");
+  });
+
+  it("updatedAt が undefined の場合は '不明' と表示する", () => {
+    const issue = { number: 3, title: "Issue C", updatedAt: undefined, url: "https://github.com/r/i/3" };
+    const result = formatOpenTaskIssues([issue]);
+    expect(result).toContain("不明");
   });
 });
