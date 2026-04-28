@@ -295,6 +295,46 @@ flowchart TD
 | `.github/workflows/init-labels.yml` | 標準ラベル初期化 workflow（手動実行） |
 | `.github/templates/copilot-task-request-comment.md` | assign 前コメントのひな形 |
 
+## Task issue のクローズ運用 ✅
+
+実装が完了した Task issue は、速やかにクローズして未完了テーマとの混在を防ぎます。
+クローズしないまま放置すると、日次 plan issue が同じ論点を繰り返し提案し続けます。
+
+### クローズ判定基準
+
+以下をすべて満たす場合に「実装済み」と判断してクローズしてください。
+
+- 対応する機能・変更が main ブランチにマージされている
+- 関連する単体テスト・E2E テストが通過している
+- README / PLAN にその機能が実装済みとして記載されている（または記載不要な小変更である）
+- 対応 PR がクローズまたはマージされている
+
+### クローズ手順
+
+1. 上記の判定基準をすべて確認する
+2. `.github/templates/task-close-comment.md` のひな形を使ってコメントを書く
+3. issue をクローズする
+
+```mermaid
+flowchart TD
+    A["open task issue を確認"] --> B["README / PLAN の完了記述と照合"]
+    B --> C{実装済みか}
+    C -- はい --> D["完了コメントを付けて close"]
+    C -- いいえ --> E["未実装として維持"]
+    D --> F["日次 plan 候補から除外"]
+    E --> G["次回候補として継続管理"]
+```
+
+> [!TIP]
+> `task` ラベルを持ち 14 日以上更新のない issue は、日次 plan issue の **棚卸し推奨 Task Issues** として自動的に表示されます。
+> このリストを定期確認し、実装済みと判断できるものはこの手順でクローズしてください。
+
+### 関連ファイル
+
+| ファイル | 役割 |
+| --- | --- |
+| `.github/templates/task-close-comment.md` | クローズ時コメントのひな形と判定基準 |
+
 ## ⚠️ 注意事項
 
 | 注意点 | 内容 |
