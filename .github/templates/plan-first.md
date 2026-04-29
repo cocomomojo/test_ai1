@@ -5,6 +5,7 @@
 - Goal:
 - Task:
 - Related issue or request:
+- Assign-before comment: [assign前コメントへのリンク or コメント番号]
 
 ## Objective
 
@@ -45,7 +46,15 @@
 
 ## Definition Of Done
 
-- What must be true before implementation is considered complete?
+assign前コメントに記録した完了条件（DoD）を転記し、実装完了の判定基準として使用します。
+
+- [ ] 実装が完了している
+- [ ] 単体テストが通る
+- [ ] 必要な E2E テストが通る
+- [ ] README / PLAN に実装済みとして記載されている（または記載不要な小変更である）
+- [ ] PR が作成されている
+- [ ] Copilot code review を依頼している
+- [ ] [assign前コメントの追加条件があれば記入]
 
 ## Open Questions
 

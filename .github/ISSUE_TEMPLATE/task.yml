@@ -8,9 +8,9 @@ body:
     attributes:
       value: |
         **Task** は 1 つの Goal に紐づく実装可能な作業単位です。
-        assign 前に「採用候補・追加要望・制約・完了条件」をこの issue にコメントとして残し、
+        assign 前に「採用候補・追加要望・制約・完了条件（DoD）」をこの issue にコメントとして残し、
         その後 Copilot に assign してください。
-        テンプレートは `.github/templates/copilot-task-request-comment.md` を参照してください。
+        テンプレートは `.github/templates/copilot-task-request-comment.md` を参照してください（★印の必須項目を必ず記入）。
 
   - type: input
     id: parent_goal
@@ -52,11 +52,14 @@ body:
     id: done_criteria
     attributes:
       label: 完了条件（Definition of Done）
-      description: この Task が完了したと判断できる基準を書いてください。
+      description: この Task が完了したと判断できる基準を書いてください。assign 前コメントにも同じ内容を記録します。
       placeholder: |
-        - 実装が完了している
-        - 単体テストが通る
-        - PR が作成されている
+        - [ ] 実装が完了している
+        - [ ] 単体テストが通る
+        - [ ] 必要な E2E テストが通る
+        - [ ] README / PLAN に実装済みとして記載されている（または記載不要な小変更である）
+        - [ ] PR が作成されている
+        - [ ] Copilot code review を依頼している
     validations:
       required: true
 
@@ -71,7 +74,7 @@ body:
     id: notes
     attributes:
       label: メモ・参考情報
-      description: 日次 plan issue の採用候補番号、参考 URL、その他メモを書いてください。
+      description: 日次 plan issue の採用候補番号、参考 URL、その他メモを書いてください。実装完了後は `.github/templates/task-close-comment.md` を使ってクローズしてください。
       placeholder: |
         - 元 issue: #XX（日次 plan issue）
         - 採用候補: 候補1
