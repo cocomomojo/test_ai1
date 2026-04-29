@@ -255,10 +255,10 @@ flowchart TD
 ```mermaid
 flowchart TD
     A["🎯 Goal issue を起票\n（ISSUE_TEMPLATE: Goal）"] --> B["🛠️ Task issue を起票\n（ISSUE_TEMPLATE: Task）\n親 Goal を記入"]
-    B --> C["📋 assign 前コメントを貼る\n（.github/templates/copilot-task-request-comment.md を参照）\n採用候補・要望・制約・完了条件を記録"]
+    B --> C["📋 assign 前コメントを貼る\n（.github/templates/copilot-task-request-comment.md を参照）\n★必須: 採用候補・要望・制約・DoD を記録"]
     C --> D["🏷️ ラベルを付与\ntask / plan-first など"]
     D --> E["🤖 Copilot に assign"]
-    E --> F["plan-first → 実装 → PR"]
+    E --> F["plan-first → 実装 → PR → 完了コメント → close"]
 ```
 
 ### issue テンプレート一覧
@@ -293,7 +293,9 @@ flowchart TD
 | `.github/ISSUE_TEMPLATE/task.yml` | Task issue テンプレート |
 | `.github/ISSUE_TEMPLATE/knowledge.yml` | Knowledge issue テンプレート |
 | `.github/workflows/init-labels.yml` | 標準ラベル初期化 workflow（手動実行） |
-| `.github/templates/copilot-task-request-comment.md` | assign 前コメントのひな形 |
+| `.github/templates/copilot-task-request-comment.md` | assign 前コメントのひな形（必須項目・DoD チェックリスト） |
+| `.github/templates/plan-first.md` | plan-first 記録のひな形（DoD 確認セクション含む） |
+| `.github/templates/task-close-comment.md` | クローズ時コメントのひな形（DoD 確認チェックリスト含む） |
 
 ## Task issue のクローズ運用 ✅
 
@@ -312,17 +314,18 @@ flowchart TD
 ### クローズ手順
 
 1. 上記の判定基準をすべて確認する
-2. `.github/templates/task-close-comment.md` のひな形を使ってコメントを書く
+2. `.github/templates/task-close-comment.md` のひな形を使い、**assign前コメント・plan-first 記録に記載した DoD** と照合してコメントを書く
 3. issue をクローズする
 
 ```mermaid
 flowchart TD
-    A["open task issue を確認"] --> B["README / PLAN の完了記述と照合"]
-    B --> C{実装済みか}
-    C -- はい --> D["完了コメントを付けて close"]
-    C -- いいえ --> E["未実装として維持"]
-    D --> F["日次 plan 候補から除外"]
-    E --> G["次回候補として継続管理"]
+    A["open task issue を確認"] --> B["assign前コメント / plan-first の DoD と照合"]
+    B --> C["README / PLAN の完了記述と照合"]
+    C --> D{実装済みか}
+    D -- はい --> E["完了コメントを付けて close\n（task-close-comment.md を使用）"]
+    D -- いいえ --> F["未実装として維持"]
+    E --> G["日次 plan 候補から除外"]
+    F --> H["次回候補として継続管理"]
 ```
 
 > [!TIP]
@@ -333,7 +336,9 @@ flowchart TD
 
 | ファイル | 役割 |
 | --- | --- |
-| `.github/templates/task-close-comment.md` | クローズ時コメントのひな形と判定基準 |
+| `.github/templates/copilot-task-request-comment.md` | assign前コメントのひな形（必須項目・DoD チェックリスト） |
+| `.github/templates/plan-first.md` | plan-first 記録のひな形（DoD 確認セクション含む） |
+| `.github/templates/task-close-comment.md` | クローズ時コメントのひな形（DoD 確認チェックリスト含む） |
 
 ## ⚠️ 注意事項
 
