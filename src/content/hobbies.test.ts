@@ -227,4 +227,40 @@ describe("getArticleBySlug", () => {
     expect(section?.table?.headers).toContain("2系統");
     expect(section?.table?.rows).toHaveLength(2);
   });
+
+  it("コーヒーの道具メモ記事を取得できる", () => {
+    const article = getArticleBySlug("coffee", "tool-note-before-replacing");
+    expect(article).toBeDefined();
+    expect(article?.title).toBe("買い替え前に役立つ道具メモの書き方");
+    expect(article?.date).toBe("2026-04-30");
+  });
+
+  it("道具メモ記事に5つのセクションが含まれる", () => {
+    const article = getArticleBySlug("coffee", "tool-note-before-replacing");
+    expect(article?.sections).toHaveLength(5);
+  });
+
+  it("3軸メモセクションに軸ごとの記録テーブルが含まれる", () => {
+    const article = getArticleBySlug("coffee", "tool-note-before-replacing");
+    const section = article?.sections.find((s) => s.heading === "3軸で残す道具メモ");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("軸");
+    expect(section?.table?.rows).toHaveLength(3);
+  });
+
+  it("判断基準セクションに継続・保留・買い替えのテーブルが含まれる", () => {
+    const article = getArticleBySlug("coffee", "tool-note-before-replacing");
+    const section = article?.sections.find((s) => s.heading === "継続・保留・買い替えの判断基準");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("判断");
+    expect(section?.table?.rows).toHaveLength(3);
+  });
+
+  it("1ページテンプレセクションに4項目のテーブルが含まれる", () => {
+    const article = getArticleBySlug("coffee", "tool-note-before-replacing");
+    const section = article?.sections.find((s) => s.heading === "1ページで残せる道具メモの型");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("項目");
+    expect(section?.table?.rows).toHaveLength(4);
+  });
 });
