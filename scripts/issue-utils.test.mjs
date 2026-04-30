@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { classifyStaleTaskIssues, compactText, filterTaskIssues, formatOpenTaskIssues, formatStaleTaskNote, formatTaskCloseComment } from "./issue-utils.mjs";
+import { classifyStaleTaskIssues, compactText, filterClosedTaskIssues, filterTaskIssues, formatClosedTaskNote, formatOpenTaskIssues, formatStaleTaskNote, formatTaskCloseComment } from "./issue-utils.mjs";
 
 describe("compactText", () => {
   it("240文字以下のテキストはそのまま返す", () => {
@@ -145,6 +145,39 @@ describe("formatTaskCloseComment", () => {
     const result = formatTaskCloseComment({ summary: "実装完了。" });
     expect(result).not.toContain("実装 PR:");
   });
+
+  it("planFirstUrl が指定された場合に Plan-First 記録行を含む", () => {
+    const result = formatTaskCloseComment({
+      summary: "実装完了。",
+      planFirstUrl: "https://github.com/example/repo/issues/5#issuecomment-123"
+    });
+    expect(result).toContain("Plan-First 記録: https://github.com/example/repo/issues/5#issuecomment-123");
+  });
+
+  it("planFirstUrl が未指定の場合は Plan-First 記録行を含まない", () => {
+    const result = formatTaskCloseComment({ summary: "実装完了。" });
+    expect(result).not.toContain("Plan-First 記録:");
+  });
+
+  it("dodItems が指定された場合に DoD チェックリストを含む", () => {
+    const result = formatTaskCloseComment({
+      summary: "実装完了。",
+      dodItems: ["実装が完了している", "単体テストが通る"]
+    });
+    expect(result).toContain("### 完了条件（DoD）確認");
+    expect(result).toContain("- [x] 実装が完了している");
+    expect(result).toContain("- [x] 単体テストが通る");
+  });
+
+  it("dodItems が空配列の場合は DoD セクションを含まない", () => {
+    const result = formatTaskCloseComment({ summary: "実装完了。", dodItems: [] });
+    expect(result).not.toContain("### 完了条件（DoD）確認");
+  });
+
+  it("dodItems が未指定の場合は DoD セクションを含まない", () => {
+    const result = formatTaskCloseComment({ summary: "実装完了。" });
+    expect(result).not.toContain("### 完了条件（DoD）確認");
+  });
 });
 
 describe("filterTaskIssues", () => {
@@ -225,6 +258,76 @@ describe("formatOpenTaskIssues", () => {
   it("updatedAt が undefined の場合は '不明' と表示する", () => {
     const issue = { number: 3, title: "Issue C", updatedAt: undefined, url: "https://github.com/r/i/3" };
     const result = formatOpenTaskIssues([issue]);
+    expect(result).toContain("不明");
+  });
+});
+
+describe("filterClosedTaskIssues", () => {
+  const makeIssue = (overrides = {}) => ({
+    number: 1,
+    title: "テスト issue",
+    labels: ["task"],
+    updatedAt: "2026-04-20T00:00:00Z",
+    url: "https://github.com/example/repo/issues/1",
+    ...overrides
+  });
+
+  it("task ラベルを持つ issue だけを返す", () => {
+    const issues = [
+      makeIssue({ number: 1, labels: ["task"] }),
+      makeIssue({ number: 2, labels: ["goal"] }),
+      makeIssue({ number: 3, labels: ["task", "plan-first"] })
+    ];
+    const result = filterClosedTaskIssues(issues);
+    expect(result).toHaveLength(2);
+    expect(result.map((i) => i.number)).toEqual([1, 3]);
+  });
+
+  it("task ラベルがない issue はすべて除外する", () => {
+    const issues = [makeIssue({ labels: ["goal"] }), makeIssue({ labels: ["knowledge"] })];
+    expect(filterClosedTaskIssues(issues)).toHaveLength(0);
+  });
+
+  it("空の issue 一覧では空配列を返す", () => {
+    expect(filterClosedTaskIssues([])).toHaveLength(0);
+  });
+});
+
+describe("formatClosedTaskNote", () => {
+  it("クローズ済み task issue がなければ '(なし)' を返す", () => {
+    expect(formatClosedTaskNote([])).toBe("(なし)");
+  });
+
+  it("issue 番号・タイトル・クローズ日・URL を含む文字列を返す", () => {
+    const issue = {
+      number: 7,
+      title: "GitHub Pages 公開フロー整備",
+      updatedAt: "2026-04-25T10:00:00Z",
+      url: "https://github.com/cocomomojo/test_ai1/issues/7"
+    };
+    const result = formatClosedTaskNote([issue]);
+    expect(result).toContain("#7");
+    expect(result).toContain("GitHub Pages 公開フロー整備");
+    expect(result).toContain("2026-04-25");
+    expect(result).toContain("https://github.com/cocomomojo/test_ai1/issues/7");
+    expect(result).toContain("クローズ日:");
+  });
+
+  it("複数の issue を改行で区切る", () => {
+    const issues = [
+      { number: 8, title: "Issue A", updatedAt: "2026-04-20T00:00:00Z", url: "https://github.com/r/i/8" },
+      { number: 9, title: "Issue B", updatedAt: "2026-04-22T00:00:00Z", url: "https://github.com/r/i/9" }
+    ];
+    const result = formatClosedTaskNote(issues);
+    const lines = result.split("\n");
+    expect(lines).toHaveLength(2);
+    expect(lines[0]).toContain("#8");
+    expect(lines[1]).toContain("#9");
+  });
+
+  it("updatedAt が undefined の場合は '不明' と表示する", () => {
+    const issue = { number: 10, title: "Issue D", updatedAt: undefined, url: "https://github.com/r/i/10" };
+    const result = formatClosedTaskNote([issue]);
     expect(result).toContain("不明");
   });
 });
