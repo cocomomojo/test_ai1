@@ -12,6 +12,7 @@
 - 既存の open issue と最近の closed issue を見て、重複提案を避ける。
 - "全 open Task Issues" に挙がった issue はすべて README/PLAN と照合し、実装済みと判断できるものを「棚卸し」セクションに列挙する。実装済みかどうかの判断には README/PLAN の完了マーク（✅）や実装済みの記述を根拠にする。
 - "棚卸し" および "実装済みの可能性がある Task Issues" に挙げた issue のテーマは改善候補として提案しない。ただし、まだ実装されていないと判断できる場合は提案してよい。
+- "最近クローズされた Task Issues" に挙がった issue のテーマは改善候補として提案しない。これらはすでに実装済みであり、同じ論点が日次提案に再登場しないようにする。
 - secrets や token の値は絶対に書かない。
 - 外部参照は行わず、渡された文脈だけで判断する。
 - 「今日の要望」が指定されている場合は、その内容を最優先で反映し、候補の方向性や選定に活かす。
@@ -86,4 +87,7 @@ Recent Closed Issues:
 
 実装済みの可能性がある Task Issues (14日以上更新のない task ラベル issue):
 {{STALE_TASK_ISSUES}}
+
+最近クローズされた Task Issues (重複提案除外対象):
+{{RECENT_CLOSED_TASK_ISSUES}}
 {{REQUEST}}

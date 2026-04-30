@@ -91,16 +91,61 @@ export function formatOpenTaskIssues(taskIssues) {
  * @param {object} opts
  * @param {string} opts.summary - A short description of what was implemented.
  * @param {string} [opts.prUrl] - URL of the merged pull request, if available.
+ * @param {string} [opts.planFirstUrl] - URL of the plan-first comment, if available.
+ * @param {string[]} [opts.dodItems] - DoD checklist items verified against the assign-before comment.
  * @returns {string}
  */
-export function formatTaskCloseComment({ summary, prUrl }) {
+export function formatTaskCloseComment({ summary, prUrl, planFirstUrl, dodItems }) {
   const lines = ["## 実装完了", "", summary];
 
   if (prUrl) {
     lines.push("", `実装 PR: ${prUrl}`);
   }
 
+  if (planFirstUrl) {
+    lines.push("", `Plan-First 記録: ${planFirstUrl}`);
+  }
+
+  if (dodItems && dodItems.length > 0) {
+    lines.push("", "### 完了条件（DoD）確認");
+    for (const item of dodItems) {
+      lines.push(`- [x] ${item}`);
+    }
+  }
+
   lines.push("", "このタスクは実装が確認されたためクローズします。");
 
   return lines.join("\n");
+}
+
+/**
+ * Filters task-labeled issues from a list of closed issues.
+ * Used to prevent re-proposing recently resolved task topics in daily plans.
+ *
+ * @param {Array<{number: number, title: string, labels: string[], updatedAt?: string, url: string}>} issues
+ * @returns {Array<{number: number, title: string, labels: string[], updatedAt?: string, url: string}>}
+ */
+export function filterClosedTaskIssues(issues) {
+  return issues.filter((issue) => issue.labels.includes("task"));
+}
+
+/**
+ * Formats recently closed task issues as a human-readable string for prompt context.
+ * Used to prevent re-proposing topics that were recently resolved.
+ * Returns "(なし)" if no recently closed task issues are present.
+ *
+ * @param {Array<{number: number, title: string, updatedAt?: string, url: string}>} closedTaskIssues
+ * @returns {string}
+ */
+export function formatClosedTaskNote(closedTaskIssues) {
+  if (closedTaskIssues.length === 0) {
+    return "(なし)";
+  }
+
+  return closedTaskIssues
+    .map(
+      (issue) =>
+        `#${issue.number} ${issue.title} (クローズ日: ${issue.updatedAt?.slice(0, 10) ?? "不明"}) ${issue.url}`
+    )
+    .join("\n");
 }
