@@ -1,6 +1,8 @@
 import type { CategoryDefinition, TagDefinition } from "./schema";
 import { categoriesDefinitionSchema, tagsDefinitionSchema } from "./schema";
 
+// slug は hobby.category の値と一致させ getCategoryBySlug のキーとして使う。
+// label は将来的に表示文言が slug と異なる場合（例: URL スラグを英語にする場合）に備えて分離してある。
 const categorySeed = [
   {
     slug: "身体を動かす",
