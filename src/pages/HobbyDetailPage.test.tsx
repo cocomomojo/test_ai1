@@ -42,4 +42,36 @@ describe("HobbyDetailPage", () => {
 
     expect(screen.queryByText("活動ログ")).not.toBeInTheDocument();
   });
+
+  it("タグがリンクとして表示され /hobbies?tag= へ遷移できる", () => {
+    renderDetail("/hobbies/running");
+
+    const tagLink = screen.getByRole("link", { name: "運動" });
+    expect(tagLink).toBeInTheDocument();
+    expect(tagLink.getAttribute("href")).toContain("tag=");
+    expect(tagLink.getAttribute("href")).toContain("/hobbies");
+  });
+
+  it("カテゴリがリンクとして表示され /hobbies?category= へ遷移できる", () => {
+    renderDetail("/hobbies/running");
+
+    const catLink = screen.getByRole("link", { name: "身体を動かす" });
+    expect(catLink).toBeInTheDocument();
+    expect(catLink.getAttribute("href")).toContain("category=");
+    expect(catLink.getAttribute("href")).toContain("/hobbies");
+  });
+
+  it("同じカテゴリの趣味が存在しない場合は関連趣味セクションが表示されない", () => {
+    // 現在の seed データでは「身体を動かす」カテゴリには running 1件のみ
+    renderDetail("/hobbies/running");
+
+    expect(screen.queryByText("同じカテゴリの趣味")).not.toBeInTheDocument();
+  });
+
+  it("DevOps の詳細でも関連趣味セクションが表示されない（カテゴリ1件）", () => {
+    // 現在の seed データでは「技術を育てる」カテゴリには devops 1件のみ
+    renderDetail("/hobbies/devops");
+
+    expect(screen.queryByText("同じカテゴリの趣味")).not.toBeInTheDocument();
+  });
 });

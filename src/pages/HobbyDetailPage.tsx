@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 
-import { getHobbyBySlug } from "../content/hobbies";
+import { getHobbyBySlug, getPublishedHobbies } from "../content/hobbies";
 import { HobbyPoster } from "../components/HobbyPoster";
 
 export function HobbyDetailPage() {
@@ -25,21 +25,34 @@ export function HobbyDetailPage() {
     );
   }
 
+  const relatedHobbies = getPublishedHobbies().filter(
+    (h) => h.slug !== hobby.slug && h.category === hobby.category
+  );
+
   return (
     <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
       <article className="rounded-[2rem] bg-white px-8 py-10 shadow-[0_20px_50px_rgba(15,23,42,0.06)]">
         <div className="flex flex-wrap gap-2 text-xs font-medium text-slate-600">
           <span className="rounded-full bg-stone-100 px-3 py-1">{hobby.status}</span>
-          <span className="rounded-full bg-stone-100 px-3 py-1">{hobby.category}</span>
+          <Link
+            to={`/hobbies?category=${encodeURIComponent(hobby.category)}`}
+            className="rounded-full bg-stone-100 px-3 py-1 transition hover:bg-stone-200"
+          >
+            {hobby.category}
+          </Link>
           <span className="rounded-full bg-stone-100 px-3 py-1">{hobby.cadence}</span>
         </div>
         <h2 className="mt-3 text-4xl font-semibold tracking-tight text-slate-950">{hobby.name}</h2>
         {hobby.tags && hobby.tags.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
             {hobby.tags.map((tag) => (
-              <span key={tag} className="rounded-full bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700">
+              <Link
+                key={tag}
+                to={`/hobbies?tag=${encodeURIComponent(tag)}`}
+                className="rounded-full bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700 transition hover:bg-teal-100"
+              >
                 {tag}
-              </span>
+              </Link>
             ))}
           </div>
         )}
@@ -203,6 +216,26 @@ export function HobbyDetailPage() {
         >
           活動ログ一覧
         </Link>
+        {relatedHobbies.length > 0 && (
+          <div className="mt-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
+              同じカテゴリの趣味
+            </p>
+            <ul className="mt-3 space-y-2">
+              {relatedHobbies.map((related) => (
+                <li key={related.slug}>
+                  <Link
+                    to={`/hobbies/${related.slug}`}
+                    className="block rounded-2xl border border-white/10 px-4 py-3 text-sm text-slate-200 transition hover:border-white/30 hover:bg-white/5"
+                  >
+                    <span className="font-semibold text-white">{related.name}</span>
+                    <span className="ml-2 text-slate-400">{related.cadence}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </aside>
     </section>
   );

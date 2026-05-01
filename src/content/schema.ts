@@ -1,5 +1,22 @@
 import { z } from "zod";
 
+export const categoryDefinitionSchema = z.object({
+  slug: z.string().min(1),
+  label: z.string().min(1),
+  description: z.string().min(1)
+});
+
+export const tagDefinitionSchema = z.object({
+  label: z.string().min(1),
+  description: z.string().min(1)
+});
+
+export const categoriesDefinitionSchema = z.array(categoryDefinitionSchema);
+export const tagsDefinitionSchema = z.array(tagDefinitionSchema);
+
+export type CategoryDefinition = z.infer<typeof categoryDefinitionSchema>;
+export type TagDefinition = z.infer<typeof tagDefinitionSchema>;
+
 export const hobbyHighlightSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1)
