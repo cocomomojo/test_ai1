@@ -263,4 +263,32 @@ describe("getArticleBySlug", () => {
     expect(section?.table?.headers).toContain("項目");
     expect(section?.table?.rows).toHaveLength(4);
   });
+
+  it("ウォーキングの3行メモ記事を取得できる", () => {
+    const article = getArticleBySlug("walking", "green-route-mood-memo");
+    expect(article).toBeDefined();
+    expect(article?.title).toBe("緑の多いルートと気分変化の関係を3行メモで見える化する");
+    expect(article?.date).toBe("2026-05-05");
+  });
+
+  it("ウォーキング記事に5つのセクションが含まれる", () => {
+    const article = getArticleBySlug("walking", "green-route-mood-memo");
+    expect(article?.sections).toHaveLength(5);
+  });
+
+  it("ルート比較セクションに3種別の比較テーブルが含まれる", () => {
+    const article = getArticleBySlug("walking", "green-route-mood-memo");
+    const section = article?.sections.find((s) => s.heading === "ルートを比較する観点");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("ルート種別");
+    expect(section?.table?.rows).toHaveLength(3);
+  });
+
+  it("3行メモセクションに3行のテーブルが含まれる", () => {
+    const article = getArticleBySlug("walking", "green-route-mood-memo");
+    const section = article?.sections.find((s) => s.heading === "天気・時間帯・気分の3行メモの型");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("行");
+    expect(section?.table?.rows).toHaveLength(3);
+  });
 });
