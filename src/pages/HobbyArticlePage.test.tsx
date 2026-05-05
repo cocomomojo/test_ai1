@@ -93,4 +93,29 @@ describe("HobbyArticlePage", () => {
     expect(screen.getByText("甘さ")).toBeInTheDocument();
     expect(screen.getByText("後味")).toBeInTheDocument();
   });
+
+  it("ウォーキングの3行メモ記事を表示する", () => {
+    renderArticle("/hobbies/walking/articles/green-route-mood-memo");
+
+    expect(screen.getByRole("heading", { name: "緑の多いルートと気分変化の関係を3行メモで見える化する" })).toBeInTheDocument();
+    expect(screen.getByText("2026-05-05")).toBeInTheDocument();
+  });
+
+  it("ルート比較表を表示する", () => {
+    renderArticle("/hobbies/walking/articles/green-route-mood-memo");
+
+    expect(screen.getByText("ルートを比較する観点")).toBeInTheDocument();
+    expect(screen.getByText("ルート種別")).toBeInTheDocument();
+    expect(screen.getByText("緑の多いルート")).toBeInTheDocument();
+    expect(screen.getByText("幹線道路沿い")).toBeInTheDocument();
+  });
+
+  it("3行メモテンプレートの表を表示する", () => {
+    renderArticle("/hobbies/walking/articles/green-route-mood-memo");
+
+    expect(screen.getByText("天気・時間帯・気分の3行メモの型")).toBeInTheDocument();
+    expect(screen.getByText("1行目")).toBeInTheDocument();
+    expect(screen.getByText("2行目")).toBeInTheDocument();
+    expect(screen.getByText("3行目")).toBeInTheDocument();
+  });
 });
