@@ -62,16 +62,16 @@ describe("HobbyDetailPage", () => {
   });
 
   it("同じカテゴリの趣味が存在しない場合は関連趣味セクションが表示されない", () => {
-    // 現在の seed データでは「身体を動かす」カテゴリには running 1件のみ
-    renderDetail("/hobbies/running");
+    // 「技術を育てる」カテゴリには devops 1件のみ
+    renderDetail("/hobbies/devops");
 
     expect(screen.queryByText("同じカテゴリの趣味")).not.toBeInTheDocument();
   });
 
-  it("DevOps の詳細でも関連趣味セクションが表示されない（カテゴリ1件）", () => {
-    // 現在の seed データでは「技術を育てる」カテゴリには devops 1件のみ
-    renderDetail("/hobbies/devops");
+  it("running の詳細で同じカテゴリの関連趣味セクションが表示される", () => {
+    // 「身体を動かす」カテゴリには running と walking がある
+    renderDetail("/hobbies/running");
 
-    expect(screen.queryByText("同じカテゴリの趣味")).not.toBeInTheDocument();
+    expect(screen.getByText("同じカテゴリの趣味")).toBeInTheDocument();
   });
 });
