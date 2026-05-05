@@ -8,7 +8,7 @@ name: Daily Plan Issue
       dry_run:
         description: "Issue を作らず本文だけ確認する"
         required: false
-        default: true
+        default: false
         type: boolean
       plan_date:
         description: "タイトルに使う日付 (YYYY-MM-DD)"
