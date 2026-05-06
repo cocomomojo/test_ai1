@@ -74,4 +74,19 @@ describe("HobbyDetailPage", () => {
 
     expect(screen.getByText("同じカテゴリの趣味")).toBeInTheDocument();
   });
+
+  it("カテゴリの説明が aside に表示される", () => {
+    renderDetail("/hobbies/running");
+
+    expect(screen.getByText("カテゴリについて")).toBeInTheDocument();
+    // categories.ts の description が表示される
+    expect(screen.getByText(/ランニングなど体を動かすことを中心に/)).toBeInTheDocument();
+  });
+
+  it("coffee の詳細でカテゴリ「家で楽しむ」の説明が表示される", () => {
+    renderDetail("/hobbies/coffee");
+
+    expect(screen.getByText("カテゴリについて")).toBeInTheDocument();
+    expect(screen.getByText(/コーヒーなど自宅でじっくり楽しむ/)).toBeInTheDocument();
+  });
 });
