@@ -5,6 +5,8 @@ import path from "node:path";
 
 import { summarizeHobbiesContent } from "./issue-utils.mjs";
 
+const repository = process.env.REPOSITORY ?? process.env.GITHUB_REPOSITORY;
+
 if (!repository) {
   throw new Error("REPOSITORY or GITHUB_REPOSITORY is required.");
 }
