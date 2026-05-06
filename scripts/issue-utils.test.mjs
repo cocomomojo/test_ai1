@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { classifyStaleTaskIssues, compactText, filterClosedTaskIssues, filterTaskIssues, formatClosedTaskNote, formatOpenTaskIssues, formatStaleTaskNote, formatTaskCloseComment } from "./issue-utils.mjs";
+import { classifyStaleTaskIssues, compactText, filterClosedTaskIssues, filterTaskIssues, formatClosedTaskNote, formatOpenTaskIssues, formatStaleTaskNote, formatTaskCloseComment, summarizeHobbiesContent } from "./issue-utils.mjs";
 
 describe("compactText", () => {
   it("240文字以下のテキストはそのまま返す", () => {
@@ -329,5 +329,128 @@ describe("formatClosedTaskNote", () => {
     const issue = { number: 10, title: "Issue D", updatedAt: undefined, url: "https://github.com/r/i/10" };
     const result = formatClosedTaskNote([issue]);
     expect(result).toContain("不明");
+  });
+});
+
+const MINIMAL_HOBBIES_TS = `
+import type { Hobby } from "./schema";
+
+const hobbySeed = [
+  {
+    slug: "running",
+    name: "ランニング",
+    category: "身体を動かす",
+    summary: "走った記録を残しながら、無理なく続けるための工夫をまとめる。",
+    status: "active",
+    cadence: "週3回",
+    tags: ["運動", "健康", "記録"],
+    updatedAt: "2026-04-20",
+    published: true,
+    highlights: []
+  },
+  {
+    slug: "devops",
+    name: "DevOps",
+    category: "技術を育てる",
+    summary:
+      "CI/CD、AWS、E2E、AI の動向を自分の運用に引き寄せて整理し、新しい組み合わせの仮説を考える。",
+    status: "active",
+    cadence: "毎週",
+    tags: ["DevOps", "CI/CD", "AWS"],
+    updatedAt: "2026-04-22",
+    published: true,
+    highlights: []
+  }
+];
+`;
+
+describe("summarizeHobbiesContent", () => {
+  it("各趣味の名前・slug・カテゴリを含む文字列を返す", () => {
+    const result = summarizeHobbiesContent(MINIMAL_HOBBIES_TS);
+    expect(result).toContain("ランニング");
+    expect(result).toContain("running");
+    expect(result).toContain("身体を動かす");
+    expect(result).toContain("DevOps");
+    expect(result).toContain("技術を育てる");
+  });
+
+  it("summary（単行）が含まれる", () => {
+    const result = summarizeHobbiesContent(MINIMAL_HOBBIES_TS);
+    expect(result).toContain("走った記録を残しながら");
+  });
+
+  it("summary（複数行形式）が含まれる", () => {
+    const result = summarizeHobbiesContent(MINIMAL_HOBBIES_TS);
+    expect(result).toContain("CI/CD、AWS、E2E、AI");
+  });
+
+  it("タグが含まれる", () => {
+    const result = summarizeHobbiesContent(MINIMAL_HOBBIES_TS);
+    expect(result).toContain("運動");
+    expect(result).toContain("健康");
+    expect(result).toContain("記録");
+  });
+
+  it("元の hobbies.ts より大幅に短い文字列を返す", () => {
+    // 多くのフィールドを含む大きな入力を作り、出力が大幅に短くなることを検証する
+    const bigContent = `
+const hobbySeed = [
+  {
+    slug: "running",
+    name: "ランニング",
+    category: "身体を動かす",
+    summary: "要約文。",
+    status: "active",
+    cadence: "週3回",
+    tags: ["運動", "健康"],
+    updatedAt: "2026-04-20",
+    published: true,
+    detail: "${"詳細文章。".repeat(100)}",
+    highlights: [
+      { title: "ハイライト1", description: "${"説明".repeat(50)}" },
+      { title: "ハイライト2", description: "${"説明".repeat(50)}" }
+    ],
+    focusTable: [
+      { theme: "A", current: "${"現状".repeat(50)}", signal: "${"気づき".repeat(50)}", nextAction: "${"次".repeat(50)}" }
+    ],
+    draftAngles: ["${"角度".repeat(50)}", "${"角度".repeat(50)}"],
+    firstReleaseItems: ["${"アイテム".repeat(50)}"],
+    innovationIdeas: [
+      { title: "AI アイデア", combination: "A x B", summary: "${"まとめ".repeat(50)}" }
+    ]
+  }
+];`;
+    const result = summarizeHobbiesContent(bigContent);
+    expect(result.length).toBeLessThan(bigContent.length / 5);
+  });
+
+  it("空文字列を渡すと '(趣味データなし)' を返す", () => {
+    expect(summarizeHobbiesContent("")).toBe("(趣味データなし)");
+  });
+
+  it("ネストされた articles slug を hobby として誤検出しない", () => {
+    const contentWithArticle = `
+const hobbySeed = [
+  {
+    slug: "running",
+    name: "ランニング",
+    category: "身体を動かす",
+    summary: "まとめる。",
+    tags: ["運動"],
+    articles: [
+      {
+        slug: "article-slug",
+        title: "記事タイトル"
+      }
+    ]
+  }
+];
+`;
+    const result = summarizeHobbiesContent(contentWithArticle);
+    // ランニングは含まれる
+    expect(result).toContain("ランニング");
+    // article-slug は独立した趣味として含まれない（名前 "ランニング" を持たない余分なエントリが出ない）
+    const lines = result.split("\n").filter((l) => l.startsWith("- **"));
+    expect(lines).toHaveLength(1);
   });
 });

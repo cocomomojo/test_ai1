@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-const repository = process.env.REPOSITORY ?? process.env.GITHUB_REPOSITORY;
+import { summarizeHobbiesContent } from "./issue-utils.mjs";
 
 if (!repository) {
   throw new Error("REPOSITORY or GITHUB_REPOSITORY is required.");
@@ -76,7 +76,7 @@ function buildPrompt({ repository: currentRepository, planDate: currentPlanDate,
     .replaceAll("{{README_CONTENT}}", readWorkspaceFile("README.md"))
     .replaceAll("{{PLAN_CONTENT}}", readWorkspaceFile("PLAN.md"))
     .replaceAll("{{COPILOT_INSTRUCTIONS}}", readWorkspaceFile(".github/copilot-instructions.md"))
-    .replaceAll("{{HOBBIES_CONTENT}}", readWorkspaceFile("src/content/hobbies.ts"))
+    .replaceAll("{{HOBBIES_CONTENT}}", summarizeHobbiesContent(readWorkspaceFile("src/content/hobbies.ts")))
     .replaceAll("{{OPEN_ISSUES}}", JSON.stringify(currentOpenIssues, null, 2))
     .replaceAll("{{RECENT_CLOSED_ISSUES}}", JSON.stringify(currentClosedIssues, null, 2));
 }
