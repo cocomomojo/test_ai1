@@ -332,7 +332,8 @@ describe("formatClosedTaskNote", () => {
   });
 });
 
-const MINIMAL_PLAN_MD = `
+describe("extractCompletedThemes", () => {
+  const MINIMAL_PLAN_MD = `
 ## 7. 実行フェーズ
 
 ### Phase 0: 開発基盤の整備 — 完了 ✅
@@ -350,7 +351,6 @@ const MINIMAL_PLAN_MD = `
 - デザインを磨いて世界観を明確にする
 `;
 
-describe("extractCompletedThemes", () => {
   it("✅ マーク付きの行だけを返す", () => {
     const result = extractCompletedThemes(MINIMAL_PLAN_MD);
     expect(result.length).toBeGreaterThan(0);

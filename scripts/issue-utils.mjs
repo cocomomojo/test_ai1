@@ -204,7 +204,7 @@ export function extractCompletedThemes(content) {
     .filter((line) => line.includes("✅"))
     .map((line) =>
       line
-        .replace(/^[#\-*\s]+/, "")
+        .replace(/^[#*\s-]+/, "")
         .replace(/\s*✅\s*/g, "")
         .trim()
     )
