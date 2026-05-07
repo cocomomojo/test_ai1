@@ -191,6 +191,44 @@ export function formatTaskCloseComment({ summary, prUrl, planFirstUrl, dodItems 
 }
 
 /**
+ * Extracts completed theme descriptions from README or PLAN content.
+ * Looks for lines containing the ✅ completion marker and returns the
+ * cleaned-up text of each line (markdown list/heading prefixes removed).
+ *
+ * @param {string} content - Raw content of README.md or PLAN.md
+ * @returns {string[]} - Array of completed theme strings
+ */
+export function extractCompletedThemes(content) {
+  return content
+    .split("\n")
+    .filter((line) => line.includes("✅"))
+    .map((line) =>
+      line
+        .replace(/^[#*\s-]+/, "")
+        .replace(/\s*✅\s*/g, "")
+        .trim()
+    )
+    .filter(Boolean);
+}
+
+/**
+ * Formats completed themes as a human-readable string for prompt context.
+ * Used to explicitly list already-implemented themes so the AI can avoid
+ * re-proposing them as daily plan candidates.
+ * Returns "(なし)" if no completed themes are found.
+ *
+ * @param {string[]} themes - Array of completed theme strings
+ * @returns {string}
+ */
+export function formatCompletedThemes(themes) {
+  if (themes.length === 0) {
+    return "(なし)";
+  }
+
+  return themes.map((theme) => `- ${theme}`).join("\n");
+}
+
+/**
  * Filters task-labeled issues from a list of closed issues.
  * Used to prevent re-proposing recently resolved task topics in daily plans.
  *

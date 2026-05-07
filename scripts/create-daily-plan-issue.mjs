@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { classifyStaleTaskIssues, compactText, filterClosedTaskIssues, filterTaskIssues, formatClosedTaskNote, formatOpenTaskIssues, formatStaleTaskNote } from "./issue-utils.mjs";
+import { classifyStaleTaskIssues, compactText, extractCompletedThemes, filterClosedTaskIssues, filterTaskIssues, formatClosedTaskNote, formatCompletedThemes, formatOpenTaskIssues, formatStaleTaskNote } from "./issue-utils.mjs";
 
 const repository = process.env.REPOSITORY ?? process.env.GITHUB_REPOSITORY;
 
@@ -81,6 +81,12 @@ try {
 
 function buildPrompt({ repository: currentRepository, planDate: currentPlanDate, openIssues: currentOpenIssues, recentClosedIssues: currentClosedIssues, staleTaskIssues: currentStaleTaskIssues, openTaskIssues: currentOpenTaskIssues, recentClosedTaskIssues: currentClosedTaskIssues, request: currentRequest }) {
   const promptTemplate = readWorkspaceFile(".github/prompts/daily-plan-issue.prompt.md");
+  const readmeContent = readWorkspaceFile("README.md");
+  const planContent = readWorkspaceFile("PLAN.md");
+  const completedThemes = [
+    ...extractCompletedThemes(readmeContent),
+    ...extractCompletedThemes(planContent)
+  ];
 
   const requestSection = currentRequest
     ? `\n今日の要望:\n${currentRequest}`
@@ -89,14 +95,15 @@ function buildPrompt({ repository: currentRepository, planDate: currentPlanDate,
   return promptTemplate
     .replaceAll("{{PLAN_DATE}}", currentPlanDate)
     .replaceAll("{{REPOSITORY}}", currentRepository)
-    .replaceAll("{{README_CONTENT}}", readWorkspaceFile("README.md"))
-    .replaceAll("{{PLAN_CONTENT}}", readWorkspaceFile("PLAN.md"))
+    .replaceAll("{{README_CONTENT}}", readmeContent)
+    .replaceAll("{{PLAN_CONTENT}}", planContent)
     .replaceAll("{{COPILOT_INSTRUCTIONS}}", readWorkspaceFile(".github/copilot-instructions.md"))
     .replaceAll("{{OPEN_ISSUES}}", JSON.stringify(currentOpenIssues, null, 2))
     .replaceAll("{{RECENT_CLOSED_ISSUES}}", JSON.stringify(currentClosedIssues, null, 2))
     .replaceAll("{{STALE_TASK_ISSUES}}", formatStaleTaskNote(currentStaleTaskIssues))
     .replaceAll("{{OPEN_TASK_ISSUES}}", formatOpenTaskIssues(currentOpenTaskIssues))
     .replaceAll("{{RECENT_CLOSED_TASK_ISSUES}}", formatClosedTaskNote(currentClosedTaskIssues))
+    .replaceAll("{{COMPLETED_THEMES}}", formatCompletedThemes(completedThemes))
     .replaceAll("{{REQUEST}}", requestSection);
 }
 
