@@ -291,4 +291,32 @@ describe("getArticleBySlug", () => {
     expect(section?.table?.headers).toContain("行");
     expect(section?.table?.rows).toHaveLength(3);
   });
+
+  it("ウォーキングの交互運用記事を取得できる", () => {
+    const article = getArticleBySlug("walking", "running-walking-weekly-recovery");
+    expect(article).toBeDefined();
+    expect(article?.title).toBe("ランニングとウォーキングを交互に入れる1週間の組み方と回復体感メモ");
+    expect(article?.date).toBe("2026-05-07");
+  });
+
+  it("交互運用記事に5つのセクションが含まれる", () => {
+    const article = getArticleBySlug("walking", "running-walking-weekly-recovery");
+    expect(article?.sections).toHaveLength(5);
+  });
+
+  it("1週間の並べ方例セクションに7日分テーブルが含まれる", () => {
+    const article = getArticleBySlug("walking", "running-walking-weekly-recovery");
+    const section = article?.sections.find((s) => s.heading === "1週間の並べ方例");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("曜日");
+    expect(section?.table?.rows).toHaveLength(7);
+  });
+
+  it("回復サインセクションに判断テーブルが含まれる", () => {
+    const article = getArticleBySlug("walking", "running-walking-weekly-recovery");
+    const section = article?.sections.find((s) => s.heading === "ラン翌朝に見る回復サイン");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("サイン");
+    expect(section?.table?.rows).toHaveLength(3);
+  });
 });

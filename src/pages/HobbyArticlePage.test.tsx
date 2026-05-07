@@ -118,4 +118,30 @@ describe("HobbyArticlePage", () => {
     expect(screen.getByText("2行目")).toBeInTheDocument();
     expect(screen.getByText("3行目")).toBeInTheDocument();
   });
+
+  it("ウォーキングの交互運用記事を表示する", () => {
+    renderArticle("/hobbies/walking/articles/running-walking-weekly-recovery");
+
+    expect(screen.getByRole("heading", { name: "ランニングとウォーキングを交互に入れる1週間の組み方と回復体感メモ" })).toBeInTheDocument();
+    expect(screen.getByText("2026-05-07")).toBeInTheDocument();
+  });
+
+  it("1週間の並べ方例の表を表示する", () => {
+    renderArticle("/hobbies/walking/articles/running-walking-weekly-recovery");
+
+    expect(screen.getByText("1週間の並べ方例")).toBeInTheDocument();
+    expect(screen.getByText("曜日")).toBeInTheDocument();
+    expect(screen.getByText("月")).toBeInTheDocument();
+    expect(screen.getByText("日")).toBeInTheDocument();
+  });
+
+  it("回復サインと3行メモ転用の表を表示する", () => {
+    renderArticle("/hobbies/walking/articles/running-walking-weekly-recovery");
+
+    expect(screen.getByText("ラン翌朝に見る回復サイン")).toBeInTheDocument();
+    expect(screen.getByText("サイン")).toBeInTheDocument();
+    expect(screen.getByText("ウォーキング方針")).toBeInTheDocument();
+    expect(screen.getByText("ウォーキング3行メモの転用法")).toBeInTheDocument();
+    expect(screen.getByText("ラン翌朝向けの記入例")).toBeInTheDocument();
+  });
 });
