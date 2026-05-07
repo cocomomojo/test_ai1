@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { classifyStaleTaskIssues, compactText, filterClosedTaskIssues, filterTaskIssues, formatClosedTaskNote, formatOpenTaskIssues, formatStaleTaskNote, formatTaskCloseComment, summarizeHobbiesContent } from "./issue-utils.mjs";
+import { classifyStaleTaskIssues, compactText, extractCompletedThemes, filterClosedTaskIssues, filterTaskIssues, formatClosedTaskNote, formatCompletedThemes, formatOpenTaskIssues, formatStaleTaskNote, formatTaskCloseComment, summarizeHobbiesContent } from "./issue-utils.mjs";
 
 describe("compactText", () => {
   it("240文字以下のテキストはそのまま返す", () => {
@@ -329,6 +329,97 @@ describe("formatClosedTaskNote", () => {
     const issue = { number: 10, title: "Issue D", updatedAt: undefined, url: "https://github.com/r/i/10" };
     const result = formatClosedTaskNote([issue]);
     expect(result).toContain("不明");
+  });
+});
+
+const MINIMAL_PLAN_MD = `
+## 7. 実行フェーズ
+
+### Phase 0: 開発基盤の整備 — 完了 ✅
+
+- React + TypeScript + Vite の初期構成を作る
+- lint / format / test の基本設定を入れる
+
+### Phase 1: Plan C ベースの最小公開版を作る — 完了 ✅
+
+### Phase 3: コンテンツと体験を拡張する
+
+- タグやカテゴリを導入する ✅
+- 更新履歴や活動ログを追加する ✅
+- 検索やフィルタを必要に応じて追加する ✅
+- デザインを磨いて世界観を明確にする
+`;
+
+describe("extractCompletedThemes", () => {
+  it("✅ マーク付きの行だけを返す", () => {
+    const result = extractCompletedThemes(MINIMAL_PLAN_MD);
+    expect(result.length).toBeGreaterThan(0);
+    result.forEach((theme) => expect(theme).not.toContain("✅"));
+  });
+
+  it("✅ のない行は除外する", () => {
+    const result = extractCompletedThemes(MINIMAL_PLAN_MD);
+    expect(result).not.toContain("デザインを磨いて世界観を明確にする");
+    expect(result).not.toContain("React + TypeScript + Vite の初期構成を作る");
+  });
+
+  it("リスト項目の ✅ を正しく抽出する", () => {
+    const result = extractCompletedThemes(MINIMAL_PLAN_MD);
+    expect(result).toContain("タグやカテゴリを導入する");
+    expect(result).toContain("更新履歴や活動ログを追加する");
+    expect(result).toContain("検索やフィルタを必要に応じて追加する");
+  });
+
+  it("見出し行の ✅ も抽出する", () => {
+    const result = extractCompletedThemes(MINIMAL_PLAN_MD);
+    expect(result.some((t) => t.includes("Phase 0"))).toBe(true);
+    expect(result.some((t) => t.includes("Phase 1"))).toBe(true);
+  });
+
+  it("抽出結果に ✅ 文字を含まない", () => {
+    const result = extractCompletedThemes(MINIMAL_PLAN_MD);
+    result.forEach((theme) => expect(theme).not.toContain("✅"));
+  });
+
+  it("空文字列を渡すと空配列を返す", () => {
+    expect(extractCompletedThemes("")).toHaveLength(0);
+  });
+
+  it("✅ が一切ない内容では空配列を返す", () => {
+    const content = "# タイトル\n- 未実装の項目\n- もう一つ未実装";
+    expect(extractCompletedThemes(content)).toHaveLength(0);
+  });
+
+  it("結果に空文字列を含まない", () => {
+    const content = "✅\n- 完了テーマ ✅";
+    const result = extractCompletedThemes(content);
+    result.forEach((theme) => expect(theme.length).toBeGreaterThan(0));
+  });
+});
+
+describe("formatCompletedThemes", () => {
+  it("完了済みテーマがなければ '(なし)' を返す", () => {
+    expect(formatCompletedThemes([])).toBe("(なし)");
+  });
+
+  it("各テーマを '- ' プレフィックス付きのリスト形式で返す", () => {
+    const result = formatCompletedThemes(["タグやカテゴリを導入する", "検索やフィルタを追加する"]);
+    expect(result).toContain("- タグやカテゴリを導入する");
+    expect(result).toContain("- 検索やフィルタを追加する");
+  });
+
+  it("複数テーマを改行で区切る", () => {
+    const themes = ["テーマ A", "テーマ B", "テーマ C"];
+    const result = formatCompletedThemes(themes);
+    const lines = result.split("\n");
+    expect(lines).toHaveLength(3);
+    expect(lines[0]).toBe("- テーマ A");
+    expect(lines[1]).toBe("- テーマ B");
+    expect(lines[2]).toBe("- テーマ C");
+  });
+
+  it("1件だけでも正しく返す", () => {
+    expect(formatCompletedThemes(["唯一のテーマ"])).toBe("- 唯一のテーマ");
   });
 });
 
