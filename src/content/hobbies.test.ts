@@ -264,6 +264,42 @@ describe("getArticleBySlug", () => {
     expect(section?.table?.rows).toHaveLength(4);
   });
 
+  it("コーヒーの器具比較記事を取得できる", () => {
+    const article = getArticleBySlug("coffee", "same-beans-different-tools");
+    expect(article).toBeDefined();
+    expect(article?.title).toBe("同じ豆を器具違いで淹れた時の印象差を3軸で比較する");
+    expect(article?.date).toBe("2026-05-08");
+  });
+
+  it("器具比較記事に5つのセクションが含まれる", () => {
+    const article = getArticleBySlug("coffee", "same-beans-different-tools");
+    expect(article?.sections).toHaveLength(5);
+  });
+
+  it("条件固定セクションに4行の固定項目テーブルが含まれる", () => {
+    const article = getArticleBySlug("coffee", "same-beans-different-tools");
+    const section = article?.sections.find((s) => s.heading === "条件を固定して差分だけを見る");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("固定項目");
+    expect(section?.table?.rows).toHaveLength(4);
+  });
+
+  it("5軸記録セクションに器具A/Bの比較テーブルが含まれる", () => {
+    const article = getArticleBySlug("coffee", "same-beans-different-tools");
+    const section = article?.sections.find((s) => s.heading === "器具ごとの印象を5軸で記録する");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("比較軸");
+    expect(section?.table?.rows).toHaveLength(5);
+  });
+
+  it("使い分けセクションに平日・休日の2行テーブルが含まれる", () => {
+    const article = getArticleBySlug("coffee", "same-beans-different-tools");
+    const section = article?.sections.find((s) => s.heading === "平日向きと休日向きの使い分け");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("場面");
+    expect(section?.table?.rows).toHaveLength(2);
+  });
+
   it("ウォーキングの3行メモ記事を取得できる", () => {
     const article = getArticleBySlug("walking", "green-route-mood-memo");
     expect(article).toBeDefined();
