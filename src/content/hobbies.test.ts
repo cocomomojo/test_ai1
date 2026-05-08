@@ -284,12 +284,12 @@ describe("getArticleBySlug", () => {
     expect(section?.table?.rows).toHaveLength(4);
   });
 
-  it("5軸記録セクションに器具A/Bの比較テーブルが含まれる", () => {
+  it("3軸記録セクションに器具A/Bの比較テーブルが含まれる", () => {
     const article = getArticleBySlug("coffee", "same-beans-different-tools");
-    const section = article?.sections.find((s) => s.heading === "器具ごとの印象を5軸で記録する");
+    const section = article?.sections.find((s) => s.heading === "器具ごとの印象を3軸で記録する");
     expect(section?.table).toBeDefined();
     expect(section?.table?.headers).toContain("比較軸");
-    expect(section?.table?.rows).toHaveLength(5);
+    expect(section?.table?.rows).toHaveLength(3);
   });
 
   it("使い分けセクションに平日・休日の2行テーブルが含まれる", () => {
