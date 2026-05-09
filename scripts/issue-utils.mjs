@@ -1,3 +1,6 @@
+const COMPLETED_MARKER = "✅";
+const COMPLETED_HEADING_KEYWORD = "完了";
+
 /**
  * Compacts text to a single line, truncating at 240 characters.
  * @param {string} value
@@ -199,16 +202,46 @@ export function formatTaskCloseComment({ summary, prUrl, planFirstUrl, dodItems 
  * @returns {string[]} - Array of completed theme strings
  */
 export function extractCompletedThemes(content) {
-  return content
-    .split("\n")
-    .filter((line) => line.includes("✅"))
-    .map((line) =>
-      line
-        .replace(/^[#*\s-]+/, "")
-        .replace(/\s*✅\s*/g, "")
-        .trim()
-    )
-    .filter(Boolean);
+  const themes = [];
+  let inCodeBlock = false;
+
+  for (const rawLine of content.split("\n")) {
+    const trimmed = rawLine.trim();
+
+    if (trimmed.startsWith("```")) {
+      inCodeBlock = !inCodeBlock;
+      continue;
+    }
+
+    if (inCodeBlock || !trimmed.includes(COMPLETED_MARKER)) {
+      continue;
+    }
+
+    const isHeading = /^#{1,6}\s+/.test(trimmed);
+    const isUnorderedList = /^[-*+]\s+/.test(trimmed);
+
+    if (isHeading && !trimmed.includes(COMPLETED_HEADING_KEYWORD)) {
+      continue;
+    }
+
+    if (!isHeading && !isUnorderedList) {
+      continue;
+    }
+
+    const normalized = trimmed
+      .replace(/^(?:#{1,6}|[-*+])\s+(?:\[[ xX]\]\s*)?/, "")
+      .replace(new RegExp(`\\s*${COMPLETED_MARKER}\\s*`, "g"), " ")
+      // Keep markdown text natural after removing the marker, e.g. "項目 ✅（補足）" -> "項目（補足）".
+      .replace(/\s+([（(])/g, "$1")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (normalized) {
+      themes.push(normalized);
+    }
+  }
+
+  return themes;
 }
 
 /**
@@ -221,11 +254,19 @@ export function extractCompletedThemes(content) {
  * @returns {string}
  */
 export function formatCompletedThemes(themes) {
-  if (themes.length === 0) {
+  const uniqueThemes = Array.from(
+    new Set(
+      themes
+        .map((theme) => theme.trim())
+        .filter(Boolean)
+    )
+  );
+
+  if (uniqueThemes.length === 0) {
     return "(なし)";
   }
 
-  return themes.map((theme) => `- ${theme}`).join("\n");
+  return uniqueThemes.map((theme) => `- ${theme}`).join("\n");
 }
 
 /**

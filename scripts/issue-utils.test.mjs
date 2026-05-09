@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { classifyStaleTaskIssues, compactText, extractCompletedThemes, filterClosedTaskIssues, filterTaskIssues, formatClosedTaskNote, formatCompletedThemes, formatOpenTaskIssues, formatStaleTaskNote, formatTaskCloseComment, summarizeHobbiesContent } from "./issue-utils.mjs";
@@ -381,6 +383,39 @@ describe("extractCompletedThemes", () => {
     result.forEach((theme) => expect(theme).not.toContain("✅"));
   });
 
+  it("Mermaid 行・表行・番号付き説明文は除外する", () => {
+    const content = `
+## 実装メモ ✅
+| 判断ポイント | 確認内容 |
+| --- | --- |
+| 未実装か | README / PLAN に ✅ がないテーマを選ぶ |
+1. README または PLAN に ✅ がない（未実装である）
+\`\`\`mermaid
+flowchart TD
+    A["開始"] --> B["完了 ✅"]
+\`\`\`
+- 実装済みの改善項目 ✅
+`;
+
+    const result = extractCompletedThemes(content);
+    expect(result).toEqual(["実装済みの改善項目"]);
+  });
+
+  it("README / PLAN 実例でノイズを拾わず完了テーマを抽出する", () => {
+    const readmeContent = readFileSync(path.join(process.cwd(), "README.md"), "utf8");
+    const planContent = readFileSync(path.join(process.cwd(), "PLAN.md"), "utf8");
+    const result = [
+      ...extractCompletedThemes(readmeContent),
+      ...extractCompletedThemes(planContent)
+    ];
+
+    expect(result).toContain("Phase 0: 開発基盤の整備 — 完了");
+    expect(result).toContain("タグやカテゴリを導入する");
+    expect(result).not.toContain('D --> E[" lint / unit test / E2E / build"]');
+    expect(result).not.toContain("README または PLAN に がない（未実装である）");
+    expect(result).not.toContain("Task issue のクローズ運用");
+  });
+
   it("空文字列を渡すと空配列を返す", () => {
     expect(extractCompletedThemes("")).toHaveLength(0);
   });
@@ -420,6 +455,11 @@ describe("formatCompletedThemes", () => {
 
   it("1件だけでも正しく返す", () => {
     expect(formatCompletedThemes(["唯一のテーマ"])).toBe("- 唯一のテーマ");
+  });
+
+  it("重複するテーマは 1 回だけ表示する", () => {
+    const result = formatCompletedThemes(["テーマ A", "テーマ B", "テーマ A", "テーマ B"]);
+    expect(result).toBe("- テーマ A\n- テーマ B");
   });
 });
 

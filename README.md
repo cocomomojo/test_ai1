@@ -297,6 +297,10 @@ flowchart TD
 | `blocked` | 外部の判断・依存待ちで作業が止まっている issue |
 | `knowledge` | instructions・テンプレート・再利用できる学びの改善 |
 
+> [!TIP]
+> `plan-first` は **issue の進め方** を表すラベルです。  
+> 一方で `Phase 0-4` は `./PLAN.md` に書く **中長期ロードマップの区分** です。日次 plan では phase を優先度判断の材料に使いますが、phase 名を issue ラベルとして付けません。
+
 関連ファイル:
 
 | ファイル | 役割 |
