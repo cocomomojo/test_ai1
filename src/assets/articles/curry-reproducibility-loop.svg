@@ -1,0 +1,64 @@
+<svg width="1200" height="700" viewBox="0 0 1200 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="700" rx="36" fill="#1F2937"/>
+  <rect x="40" y="40" width="1120" height="620" rx="28" fill="url(#bg)"/>
+  <g opacity="0.15">
+    <circle cx="1050" cy="120" r="120" fill="#FDE68A"/>
+    <circle cx="170" cy="580" r="150" fill="#FB923C"/>
+  </g>
+  <text x="100" y="105" fill="#FFF7ED" font-family="sans-serif" font-size="36" font-weight="700">家カレーの味ぶれを減らす流れ</text>
+  <text x="100" y="145" fill="#FED7AA" font-family="sans-serif" font-size="20">固定するものを先に決めて、毎回ひとつだけ試し、食後メモを次回に返す</text>
+
+  <g>
+    <rect x="100" y="210" width="280" height="110" rx="24" fill="#FFF7ED"/>
+    <text x="140" y="255" fill="#9A3412" font-family="sans-serif" font-size="22" font-weight="700">1. 作りたい一皿を決める</text>
+    <text x="140" y="290" fill="#7C2D12" font-family="sans-serif" font-size="18">昼向け / 夜向け / 翌日も食べるか</text>
+  </g>
+
+  <g>
+    <rect x="460" y="210" width="280" height="110" rx="24" fill="#FFF7ED"/>
+    <text x="500" y="255" fill="#9A3412" font-family="sans-serif" font-size="22" font-weight="700">2. 先に固定する</text>
+    <text x="500" y="290" fill="#7C2D12" font-family="sans-serif" font-size="18">ベース・量・鍋サイズをそろえる</text>
+  </g>
+
+  <g>
+    <rect x="820" y="210" width="280" height="110" rx="24" fill="#FFF7ED"/>
+    <text x="860" y="255" fill="#9A3412" font-family="sans-serif" font-size="22" font-weight="700">3. 今回は1つだけ動かす</text>
+    <text x="860" y="290" fill="#7C2D12" font-family="sans-serif" font-size="18">スパイス / 火加減 / 寝かせ方</text>
+  </g>
+
+  <g>
+    <rect x="230" y="430" width="320" height="120" rx="24" fill="#FEF3C7"/>
+    <text x="270" y="475" fill="#92400E" font-family="sans-serif" font-size="22" font-weight="700">4. 食べた印象を短く記録</text>
+    <text x="270" y="510" fill="#78350F" font-family="sans-serif" font-size="18">香り / 重さ / 辛さ / まとまり</text>
+  </g>
+
+  <g>
+    <rect x="660" y="430" width="310" height="120" rx="24" fill="#ECFCCB"/>
+    <text x="700" y="475" fill="#3F6212" font-family="sans-serif" font-size="22" font-weight="700">5. 次回の1点を決める</text>
+    <text x="700" y="510" fill="#365314" font-family="sans-serif" font-size="18">戻す / 微調整する / 別項目を試す</text>
+  </g>
+
+  <g stroke="#FFF7ED" stroke-width="10" stroke-linecap="round">
+    <path d="M390 265H445"/>
+    <path d="M750 265H805"/>
+    <path d="M960 330C960 385 890 420 840 430"/>
+    <path d="M655 490H560"/>
+    <path d="M320 430C260 415 180 370 180 320"/>
+  </g>
+
+  <g fill="#FFF7ED">
+    <path d="M445 265L420 248V282L445 265Z"/>
+    <path d="M805 265L780 248V282L805 265Z"/>
+    <path d="M842 430L820 408L813 442L842 430Z"/>
+    <path d="M560 490L585 473V507L560 490Z"/>
+    <path d="M180 320L202 342L209 308L180 320Z"/>
+  </g>
+
+  <defs>
+    <linearGradient id="bg" x1="40" y1="40" x2="1160" y2="660" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7C2D12"/>
+      <stop offset="0.55" stop-color="#C2410C"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+</svg>

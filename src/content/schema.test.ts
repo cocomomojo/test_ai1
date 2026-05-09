@@ -226,6 +226,11 @@ describe("hobbySchema articles フィールド", () => {
           title: "テスト記事",
           date: "2026-04-23",
           summary: "概要",
+          image: {
+            src: "/images/test.svg",
+            alt: "テスト画像",
+            caption: "図の説明"
+          },
           sections: [
             {
               heading: "はじめに",
@@ -240,6 +245,7 @@ describe("hobbySchema articles フィールド", () => {
     if (result.success) {
       expect(result.data.articles).toHaveLength(1);
       expect(result.data.articles?.[0].slug).toBe("test-article");
+      expect(result.data.articles?.[0].image?.alt).toBe("テスト画像");
     }
   });
 
@@ -316,4 +322,3 @@ describe("hobbiesSchema", () => {
     expect(result.success).toBe(true);
   });
 });
-

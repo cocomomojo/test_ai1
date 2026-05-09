@@ -75,6 +75,16 @@ export function HobbyArticlePage() {
         <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 md:text-4xl">{article.title}</h2>
         <p className="mt-1 text-xs text-slate-400">{article.date}</p>
         <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">{article.summary}</p>
+        {article.image && (
+          <figure className="mt-6 overflow-hidden rounded-[1.5rem] border border-slate-900/10 bg-stone-50 p-4">
+            <img
+              src={article.image.src}
+              alt={article.image.alt}
+              className="w-full rounded-[1rem] border border-slate-900/10 bg-white object-cover"
+            />
+            {article.image.caption && <figcaption className="mt-3 text-xs leading-6 text-slate-500">{article.image.caption}</figcaption>}
+          </figure>
+        )}
 
         <div className="mt-2 border-t border-slate-900/10 pt-2">
           {article.sections.map((section) => (
