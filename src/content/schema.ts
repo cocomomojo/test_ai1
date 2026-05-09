@@ -52,6 +52,12 @@ export const articleTableSchema = z.object({
   rows: z.array(z.array(z.string()))
 });
 
+export const articleImageSchema = z.object({
+  src: z.string().min(1),
+  alt: z.string().min(1),
+  caption: z.string().min(1).optional()
+});
+
 export const articleSectionSchema = z.object({
   heading: z.string().min(1),
   body: z.string().min(1),
@@ -63,6 +69,7 @@ export const hobbyArticleSchema = z.object({
   title: z.string().min(1),
   date: z.string().min(1),
   summary: z.string().min(1),
+  image: articleImageSchema.optional(),
   sections: z.array(articleSectionSchema).min(1)
 });
 
@@ -93,5 +100,6 @@ export const hobbiesSchema = z.array(hobbySchema);
 export type Hobby = z.infer<typeof hobbySchema>;
 export type HobbyActivityLog = z.infer<typeof hobbyActivityLogSchema>;
 export type HobbyArticle = z.infer<typeof hobbyArticleSchema>;
+export type ArticleImage = z.infer<typeof articleImageSchema>;
 export type ArticleSection = z.infer<typeof articleSectionSchema>;
 export type ArticleTable = z.infer<typeof articleTableSchema>;

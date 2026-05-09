@@ -68,6 +68,30 @@ describe("HobbyArticlePage", () => {
     expect(screen.getByText("2026-04-26")).toBeInTheDocument();
   });
 
+  it("カレーの3段階整理記事と画像を表示する", () => {
+    renderArticle("/hobbies/curry/articles/curry-three-step-stability");
+
+    expect(screen.getByRole("heading", { name: "家カレーの再現性を上げる「味のぶれを減らす3段階整理」" })).toBeInTheDocument();
+    expect(screen.getByText("2026-05-09")).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", {
+        name: "家カレーで固定する条件、1回ごとに試す項目、食後メモを次回へ返す流れ図"
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("ベース・量・鍋サイズを先に固定し、今回は1項目だけ動かして、食べた印象を次回の1点調整に返す流れを図にした。")
+    ).toBeInTheDocument();
+  });
+
+  it("カレーの3列表を表示する", () => {
+    renderArticle("/hobbies/curry/articles/curry-three-step-stability");
+
+    expect(screen.getByText("変える前に固定する3列表")).toBeInTheDocument();
+    expect(screen.getByText("変える前に固定する項目")).toBeInTheDocument();
+    expect(screen.getByText("1回ごとに試す項目")).toBeInTheDocument();
+    expect(screen.getByText("記録する項目")).toBeInTheDocument();
+  });
+
   it("定番レシピ固定項目の表を表示する", () => {
     renderArticle("/hobbies/coffee/articles/morning-recipe-two-track");
 

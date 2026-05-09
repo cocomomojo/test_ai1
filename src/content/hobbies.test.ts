@@ -207,6 +207,27 @@ describe("getArticleBySlug", () => {
     expect(article?.date).toBe("2026-04-26");
   });
 
+  it("カレーの3段階整理記事を取得できる", () => {
+    const article = getArticleBySlug("curry", "curry-three-step-stability");
+    expect(article).toBeDefined();
+    expect(article?.title).toBe("家カレーの再現性を上げる「味のぶれを減らす3段階整理」");
+    expect(article?.date).toBe("2026-05-09");
+    expect(article?.image?.alt).toBe("家カレーで固定する条件、1回ごとに試す項目、食後メモを次回へ返す流れ図");
+  });
+
+  it("3段階整理記事に5つのセクションが含まれる", () => {
+    const article = getArticleBySlug("curry", "curry-three-step-stability");
+    expect(article?.sections).toHaveLength(5);
+  });
+
+  it("3列表セクションに固定・試行・記録のテーブルが含まれる", () => {
+    const article = getArticleBySlug("curry", "curry-three-step-stability");
+    const section = article?.sections.find((s) => s.heading === "変える前に固定する3列表");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("変える前に固定する項目");
+    expect(section?.table?.rows).toHaveLength(3);
+  });
+
   it("コーヒー記事に5つのセクションが含まれる", () => {
     const article = getArticleBySlug("coffee", "morning-recipe-two-track");
     expect(article?.sections).toHaveLength(5);
