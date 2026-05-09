@@ -231,6 +231,7 @@ export function extractCompletedThemes(content) {
     const normalized = trimmed
       .replace(/^(?:#{1,6}|[-*+])\s+(?:\[[ xX]\]\s*)?/, "")
       .replace(new RegExp(`\\s*${COMPLETED_MARKER}\\s*`, "g"), " ")
+      // Keep markdown text natural after removing the marker, e.g. "項目 ✅（補足）" -> "項目（補足）".
       .replace(/\s+([（(])/g, "$1")
       .replace(/\s+/g, " ")
       .trim();

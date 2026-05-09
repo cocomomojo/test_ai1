@@ -335,8 +335,6 @@ describe("formatClosedTaskNote", () => {
 });
 
 describe("extractCompletedThemes", () => {
-  const README_CONTENT = readFileSync(path.join(process.cwd(), "README.md"), "utf8");
-  const PLAN_CONTENT = readFileSync(path.join(process.cwd(), "PLAN.md"), "utf8");
   const MINIMAL_PLAN_MD = `
 ## 7. 実行フェーズ
 
@@ -404,9 +402,11 @@ flowchart TD
   });
 
   it("README / PLAN 実例でノイズを拾わず完了テーマを抽出する", () => {
+    const readmeContent = readFileSync(path.join(process.cwd(), "README.md"), "utf8");
+    const planContent = readFileSync(path.join(process.cwd(), "PLAN.md"), "utf8");
     const result = [
-      ...extractCompletedThemes(README_CONTENT),
-      ...extractCompletedThemes(PLAN_CONTENT)
+      ...extractCompletedThemes(readmeContent),
+      ...extractCompletedThemes(planContent)
     ];
 
     expect(result).toContain("Phase 0: 開発基盤の整備 — 完了");
