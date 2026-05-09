@@ -1,3 +1,6 @@
+const COMPLETED_MARKER = "✅";
+const COMPLETED_HEADING_KEYWORD = "完了";
+
 /**
  * Compacts text to a single line, truncating at 240 characters.
  * @param {string} value
@@ -210,14 +213,14 @@ export function extractCompletedThemes(content) {
       continue;
     }
 
-    if (inCodeBlock || !trimmed.includes("✅")) {
+    if (inCodeBlock || !trimmed.includes(COMPLETED_MARKER)) {
       continue;
     }
 
     const isHeading = /^#{1,6}\s+/.test(trimmed);
     const isUnorderedList = /^[-*+]\s+/.test(trimmed);
 
-    if (isHeading && !trimmed.includes("完了")) {
+    if (isHeading && !trimmed.includes(COMPLETED_HEADING_KEYWORD)) {
       continue;
     }
 
@@ -227,7 +230,7 @@ export function extractCompletedThemes(content) {
 
     const normalized = trimmed
       .replace(/^(?:#{1,6}|[-*+])\s+(?:\[[ xX]\]\s*)?/, "")
-      .replace(/\s*✅\s*/g, " ")
+      .replace(new RegExp(`\\s*${COMPLETED_MARKER}\\s*`, "g"), " ")
       .replace(/\s+([（(])/g, "$1")
       .replace(/\s+/g, " ")
       .trim();
