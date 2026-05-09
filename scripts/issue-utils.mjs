@@ -199,16 +199,45 @@ export function formatTaskCloseComment({ summary, prUrl, planFirstUrl, dodItems 
  * @returns {string[]} - Array of completed theme strings
  */
 export function extractCompletedThemes(content) {
-  return content
-    .split("\n")
-    .filter((line) => line.includes("✅"))
-    .map((line) =>
-      line
-        .replace(/^[#*\s-]+/, "")
-        .replace(/\s*✅\s*/g, "")
-        .trim()
-    )
-    .filter(Boolean);
+  const themes = [];
+  let inCodeBlock = false;
+
+  for (const rawLine of content.split("\n")) {
+    const trimmed = rawLine.trim();
+
+    if (trimmed.startsWith("```")) {
+      inCodeBlock = !inCodeBlock;
+      continue;
+    }
+
+    if (inCodeBlock || !trimmed.includes("✅")) {
+      continue;
+    }
+
+    const isHeading = /^#{1,6}\s+/.test(trimmed);
+    const isUnorderedList = /^[-*+]\s+/.test(trimmed);
+
+    if (isHeading && !trimmed.includes("完了")) {
+      continue;
+    }
+
+    if (!isHeading && !isUnorderedList) {
+      continue;
+    }
+
+    const normalized = trimmed
+      .replace(/^(?:#{1,6}|[-*+])\s+(?:\[[ xX]\]\s*)?/, "")
+      .replace(/\s*✅\s*/g, " ")
+      .replace(/\s+([（(])/g, "$1")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (normalized) {
+      themes.push(normalized);
+    }
+  }
+
+  return themes;
 }
 
 /**
@@ -221,11 +250,19 @@ export function extractCompletedThemes(content) {
  * @returns {string}
  */
 export function formatCompletedThemes(themes) {
-  if (themes.length === 0) {
+  const uniqueThemes = Array.from(
+    new Set(
+      themes
+        .map((theme) => theme.trim())
+        .filter(Boolean)
+    )
+  );
+
+  if (uniqueThemes.length === 0) {
     return "(なし)";
   }
 
-  return themes.map((theme) => `- ${theme}`).join("\n");
+  return uniqueThemes.map((theme) => `- ${theme}`).join("\n");
 }
 
 /**

@@ -35,6 +35,7 @@
 - Use the task label for an implementable unit of work that belongs to one goal.
 - Use the plan-first label when a task needs design and impact review before coding.
 - Use the auto-implement label only after the plan-first output is accepted.
+- Treat `plan-first` as an issue workflow label, and treat `Phase 0-4` in PLAN.md as roadmap buckets. Do not use phase names as labels.
 - Use the blocked label when work cannot proceed without an external decision or dependency.
 - Use the knowledge label for improvements to instructions, skills, templates, or reusable learnings.
 - Link each task to a single parent goal whenever possible.
