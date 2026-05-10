@@ -376,4 +376,32 @@ describe("getArticleBySlug", () => {
     expect(section?.table?.headers).toContain("サイン");
     expect(section?.table?.rows).toHaveLength(3);
   });
+
+  it("DevOps の自動化境界記事を取得できる", () => {
+    const article = getArticleBySlug("devops", "cicd-ai-automation-boundary");
+    expect(article).toBeDefined();
+    expect(article?.title).toBe("CI/CD と AI を組み合わせる時に自動化しすぎない境界");
+    expect(article?.date).toBe("2026-05-10");
+  });
+
+  it("自動化境界記事に4つのセクションが含まれる", () => {
+    const article = getArticleBySlug("devops", "cicd-ai-automation-boundary");
+    expect(article?.sections).toHaveLength(4);
+  });
+
+  it("工程4列表セクションに観測・下書き・実装・公開の4行が含まれる", () => {
+    const article = getArticleBySlug("devops", "cicd-ai-automation-boundary");
+    const section = article?.sections.find((s) => s.heading === "工程を4層に分けて考える");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("工程");
+    expect(section?.table?.rows).toHaveLength(4);
+  });
+
+  it("3区分セクションに自動・人判断・非自動の3行テーブルが含まれる", () => {
+    const article = getArticleBySlug("devops", "cicd-ai-automation-boundary");
+    const section = article?.sections.find((s) => s.heading === "3区分で自動化の境界を引く");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("区分");
+    expect(section?.table?.rows).toHaveLength(3);
+  });
 });
