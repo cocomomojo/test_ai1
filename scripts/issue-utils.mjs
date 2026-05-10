@@ -1,5 +1,19 @@
 const COMPLETED_MARKER = "✅";
 const COMPLETED_HEADING_KEYWORD = "完了";
+const MIN_MATCH_LENGTH = 6;
+const DAILY_PLAN_PRIORITY_KEYWORDS = {
+  operations: [
+    "クローズ",
+    "テンプレート",
+    "未定義",
+    "日次",
+    "issue",
+    "workflow"
+  ],
+  quality: ["品質", "テスト", "型安全", "lint", "回帰", "検証"],
+  phase2: ["phase 2", "改善サイクル", "plan-first", "dod", "task issue", "instructions", "skills"],
+  phase34: ["phase 3", "phase 4", "タグ", "カテゴリ", "検索", "フィルタ", "デザイン", "機能追加"]
+};
 
 /**
  * Compacts text to a single line, truncating at 240 characters.
@@ -299,4 +313,175 @@ export function formatClosedTaskNote(closedTaskIssues) {
         `#${issue.number} ${issue.title} (クローズ日: ${issue.updatedAt?.slice(0, 10) ?? "不明"}) ${issue.url}`
     )
     .join("\n");
+}
+
+/**
+ * Filters non-task issues that can be proposed as daily-plan candidates.
+ * Excludes themes already completed in README/PLAN and topics that overlap
+ * with open/closed task issues.
+ *
+ * @param {Array<{number: number, title: string, body?: string, labels: string[]}>} issues
+ * @param {object} context
+ * @param {string[]} context.completedThemes
+ * @param {Array<{title: string}>} context.openTaskIssues
+ * @param {Array<{title: string}>} context.recentClosedTaskIssues
+ * @returns {Array<{number: number, title: string, body?: string, labels: string[]}>}
+ */
+export function filterDailyPlanCandidateIssues(
+  issues,
+  { completedThemes = [], openTaskIssues = [], recentClosedTaskIssues = [] } = {}
+) {
+  const exclusionTerms = [
+    ...completedThemes,
+    ...openTaskIssues.map((issue) => issue.title),
+    ...recentClosedTaskIssues.map((issue) => issue.title)
+  ]
+    .map(normalizeComparableText)
+    .filter((term) => term.length >= MIN_MATCH_LENGTH);
+
+  return issues.filter((issue) => {
+    if (issue.labels.includes("task")) {
+      return false;
+    }
+
+    const source = normalizeComparableText(`${issue.title} ${issue.body ?? ""}`);
+    return !exclusionTerms.some((term) => includesComparable(source, term));
+  });
+}
+
+/**
+ * Finds open task issues that are likely already implemented by checking
+ * overlap with README/PLAN completed themes.
+ *
+ * @param {Array<{number: number, title: string, body?: string, labels: string[], updatedAt?: string, url: string}>} openTaskIssues
+ * @param {string[]} completedThemes
+ * @returns {Array<{number: number, title: string, body?: string, labels: string[], updatedAt?: string, url: string}>}
+ */
+export function findCloseRecommendedTaskIssues(openTaskIssues, completedThemes) {
+  const normalizedThemes = completedThemes
+    .map(normalizeComparableText)
+    .filter((term) => term.length >= MIN_MATCH_LENGTH);
+
+  return openTaskIssues.filter((issue) => {
+    const source = normalizeComparableText(`${issue.title} ${issue.body ?? ""}`);
+    return normalizedThemes.some((theme) => includesComparable(source, theme));
+  });
+}
+
+/**
+ * Applies PLAN.md Section 10 priority rules to candidate issues.
+ *
+ * @param {Array<{number: number, title: string, body?: string, labels: string[], updatedAt?: string}>} candidates
+ * @returns {Array<{number: number, title: string, body?: string, labels: string[], updatedAt?: string}>}
+ */
+export function prioritizeDailyPlanCandidateIssues(candidates) {
+  return [...candidates].sort((left, right) => {
+    const leftPriority = classifyDailyPlanPriority(left);
+    const rightPriority = classifyDailyPlanPriority(right);
+
+    if (leftPriority !== rightPriority) {
+      return leftPriority - rightPriority;
+    }
+
+    const leftUpdatedAt = Date.parse(left.updatedAt ?? "");
+    const rightUpdatedAt = Date.parse(right.updatedAt ?? "");
+    const leftTimestamp = Number.isNaN(leftUpdatedAt) ? Number.MAX_SAFE_INTEGER : leftUpdatedAt;
+    const rightTimestamp = Number.isNaN(rightUpdatedAt) ? Number.MAX_SAFE_INTEGER : rightUpdatedAt;
+
+    if (leftTimestamp !== rightTimestamp) {
+      return leftTimestamp - rightTimestamp;
+    }
+
+    return left.number - right.number;
+  });
+}
+
+/**
+ * Formats close-recommended task issues for the issue body section.
+ * Returns "(なし)" when no issue is matched.
+ *
+ * @param {Array<{number: number, title: string}>} issues
+ * @returns {string}
+ */
+export function formatCloseRecommendedTaskIssues(issues) {
+  if (issues.length === 0) {
+    return "(なし)";
+  }
+
+  return issues
+    .map((issue) => `#${issue.number} ${issue.title} — README/PLAN の完了済みテーマと一致`)
+    .join("\n");
+}
+
+/**
+ * Formats sorted candidate issues for prompt context.
+ * Returns "(なし)" when no candidate is available.
+ *
+ * @param {Array<{number: number, title: string, updatedAt?: string}>} issues
+ * @returns {string}
+ */
+export function formatDailyPlanCandidateIssues(issues) {
+  if (issues.length === 0) {
+    return "(なし)";
+  }
+
+  return issues
+    .map((issue) => {
+      const priority = classifyDailyPlanPriority(issue);
+      const priorityText =
+        priority === 0
+          ? "運用の穴"
+          : priority === 1
+            ? "品質改善"
+            : priority === 2
+              ? "Phase 2 定着"
+              : priority === 3
+                ? "その他改善"
+                : "Phase 3/4 拡張";
+
+      return `#${issue.number} ${issue.title} (優先: ${priorityText}, 更新: ${issue.updatedAt?.slice(0, 10) ?? "不明"})`;
+    })
+    .join("\n");
+}
+
+function classifyDailyPlanPriority(issue) {
+  const normalizedSource = normalizeComparableText(`${issue.title} ${issue.body ?? ""}`);
+
+  if (hasPriorityKeyword(normalizedSource, DAILY_PLAN_PRIORITY_KEYWORDS.operations)) {
+    return 0;
+  }
+
+  if (hasPriorityKeyword(normalizedSource, DAILY_PLAN_PRIORITY_KEYWORDS.quality)) {
+    return 1;
+  }
+
+  if (hasPriorityKeyword(normalizedSource, DAILY_PLAN_PRIORITY_KEYWORDS.phase2)) {
+    return 2;
+  }
+
+  if (hasPriorityKeyword(normalizedSource, DAILY_PLAN_PRIORITY_KEYWORDS.phase34)) {
+    return 4;
+  }
+
+  return 3;
+}
+
+function hasPriorityKeyword(source, keywords) {
+  return keywords.some((keyword) => includesComparable(source, normalizeComparableText(keyword), 2));
+}
+
+function includesComparable(source, target, minimumLength = MIN_MATCH_LENGTH) {
+  if (source.length < minimumLength || target.length < minimumLength) {
+    return false;
+  }
+
+  return source.includes(target) || target.includes(source);
+}
+
+function normalizeComparableText(value) {
+  return (value ?? "")
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }

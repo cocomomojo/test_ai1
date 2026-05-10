@@ -3,7 +3,22 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { classifyStaleTaskIssues, compactText, extractCompletedThemes, filterClosedTaskIssues, filterTaskIssues, formatClosedTaskNote, formatCompletedThemes, formatOpenTaskIssues, formatStaleTaskNote } from "./issue-utils.mjs";
+import {
+  classifyStaleTaskIssues,
+  compactText,
+  extractCompletedThemes,
+  filterClosedTaskIssues,
+  filterDailyPlanCandidateIssues,
+  filterTaskIssues,
+  findCloseRecommendedTaskIssues,
+  formatCloseRecommendedTaskIssues,
+  formatClosedTaskNote,
+  formatCompletedThemes,
+  formatDailyPlanCandidateIssues,
+  formatOpenTaskIssues,
+  formatStaleTaskNote,
+  prioritizeDailyPlanCandidateIssues
+} from "./issue-utils.mjs";
 
 const repository = process.env.REPOSITORY ?? process.env.GITHUB_REPOSITORY;
 
@@ -21,6 +36,20 @@ const recentClosedIssues = listIssues("closed", 10);
 const staleTaskIssues = classifyStaleTaskIssues(openIssues);
 const openTaskIssues = filterTaskIssues(openIssues);
 const recentClosedTaskIssues = filterClosedTaskIssues(recentClosedIssues);
+const readmeContent = readWorkspaceFile("README.md");
+const planContent = readWorkspaceFile("PLAN.md");
+const completedThemes = [
+  ...extractCompletedThemes(readmeContent),
+  ...extractCompletedThemes(planContent)
+];
+const closeRecommendedTaskIssues = findCloseRecommendedTaskIssues(openTaskIssues, completedThemes);
+const candidateIssues = prioritizeDailyPlanCandidateIssues(
+  filterDailyPlanCandidateIssues(openIssues, {
+    completedThemes,
+    openTaskIssues,
+    recentClosedTaskIssues
+  })
+);
 const existingIssue = openIssues.find((issue) => issue.title === title);
 
 if (existingIssue) {
@@ -36,6 +65,11 @@ const prompt = buildPrompt({
   staleTaskIssues,
   openTaskIssues,
   recentClosedTaskIssues,
+  closeRecommendedTaskIssues,
+  candidateIssues,
+  readmeContent,
+  planContent,
+  completedThemes,
   request
 });
 
@@ -79,14 +113,22 @@ try {
   rmSync(tempDir, { recursive: true, force: true });
 }
 
-function buildPrompt({ repository: currentRepository, planDate: currentPlanDate, openIssues: currentOpenIssues, recentClosedIssues: currentClosedIssues, staleTaskIssues: currentStaleTaskIssues, openTaskIssues: currentOpenTaskIssues, recentClosedTaskIssues: currentClosedTaskIssues, request: currentRequest }) {
+function buildPrompt({
+  repository: currentRepository,
+  planDate: currentPlanDate,
+  openIssues: currentOpenIssues,
+  recentClosedIssues: currentClosedIssues,
+  staleTaskIssues: currentStaleTaskIssues,
+  openTaskIssues: currentOpenTaskIssues,
+  recentClosedTaskIssues: currentClosedTaskIssues,
+  closeRecommendedTaskIssues: currentCloseRecommendedTaskIssues,
+  candidateIssues: currentCandidateIssues,
+  readmeContent: currentReadmeContent,
+  planContent: currentPlanContent,
+  completedThemes: currentCompletedThemes,
+  request: currentRequest
+}) {
   const promptTemplate = readWorkspaceFile(".github/prompts/daily-plan-issue.prompt.md");
-  const readmeContent = readWorkspaceFile("README.md");
-  const planContent = readWorkspaceFile("PLAN.md");
-  const completedThemes = [
-    ...extractCompletedThemes(readmeContent),
-    ...extractCompletedThemes(planContent)
-  ];
 
   const requestSection = currentRequest
     ? `\n今日の要望:\n${currentRequest}`
@@ -95,15 +137,17 @@ function buildPrompt({ repository: currentRepository, planDate: currentPlanDate,
   return promptTemplate
     .replaceAll("{{PLAN_DATE}}", currentPlanDate)
     .replaceAll("{{REPOSITORY}}", currentRepository)
-    .replaceAll("{{README_CONTENT}}", readmeContent)
-    .replaceAll("{{PLAN_CONTENT}}", planContent)
+    .replaceAll("{{README_CONTENT}}", currentReadmeContent)
+    .replaceAll("{{PLAN_CONTENT}}", currentPlanContent)
     .replaceAll("{{COPILOT_INSTRUCTIONS}}", readWorkspaceFile(".github/copilot-instructions.md"))
     .replaceAll("{{OPEN_ISSUES}}", JSON.stringify(currentOpenIssues, null, 2))
     .replaceAll("{{RECENT_CLOSED_ISSUES}}", JSON.stringify(currentClosedIssues, null, 2))
     .replaceAll("{{STALE_TASK_ISSUES}}", formatStaleTaskNote(currentStaleTaskIssues))
     .replaceAll("{{OPEN_TASK_ISSUES}}", formatOpenTaskIssues(currentOpenTaskIssues))
     .replaceAll("{{RECENT_CLOSED_TASK_ISSUES}}", formatClosedTaskNote(currentClosedTaskIssues))
-    .replaceAll("{{COMPLETED_THEMES}}", formatCompletedThemes(completedThemes))
+    .replaceAll("{{CLOSE_RECOMMENDED_TASK_ISSUES}}", formatCloseRecommendedTaskIssues(currentCloseRecommendedTaskIssues))
+    .replaceAll("{{FILTERED_CANDIDATE_ISSUES}}", formatDailyPlanCandidateIssues(currentCandidateIssues))
+    .replaceAll("{{COMPLETED_THEMES}}", formatCompletedThemes(currentCompletedThemes))
     .replaceAll("{{REQUEST}}", requestSection);
 }
 

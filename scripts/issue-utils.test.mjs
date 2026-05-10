@@ -2,7 +2,24 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { classifyStaleTaskIssues, compactText, extractCompletedThemes, filterClosedTaskIssues, filterTaskIssues, formatClosedTaskNote, formatCompletedThemes, formatOpenTaskIssues, formatStaleTaskNote, formatTaskCloseComment, summarizeHobbiesContent } from "./issue-utils.mjs";
+import {
+  classifyStaleTaskIssues,
+  compactText,
+  extractCompletedThemes,
+  filterClosedTaskIssues,
+  filterDailyPlanCandidateIssues,
+  filterTaskIssues,
+  findCloseRecommendedTaskIssues,
+  formatCloseRecommendedTaskIssues,
+  formatClosedTaskNote,
+  formatCompletedThemes,
+  formatDailyPlanCandidateIssues,
+  formatOpenTaskIssues,
+  formatStaleTaskNote,
+  formatTaskCloseComment,
+  prioritizeDailyPlanCandidateIssues,
+  summarizeHobbiesContent
+} from "./issue-utils.mjs";
 
 describe("compactText", () => {
   it("240文字以下のテキストはそのまま返す", () => {
@@ -331,6 +348,136 @@ describe("formatClosedTaskNote", () => {
     const issue = { number: 10, title: "Issue D", updatedAt: undefined, url: "https://github.com/r/i/10" };
     const result = formatClosedTaskNote([issue]);
     expect(result).toContain("不明");
+  });
+});
+
+describe("filterDailyPlanCandidateIssues", () => {
+  const baseIssue = (overrides = {}) => ({
+    number: 1,
+    title: "改善候補",
+    body: "改善の説明",
+    labels: ["goal"],
+    updatedAt: "2026-05-01T00:00:00Z",
+    url: "https://github.com/example/repo/issues/1",
+    ...overrides
+  });
+
+  it("README/PLAN 完了済みテーマに一致する候補を除外する", () => {
+    const issues = [
+      baseIssue({ number: 1, title: "タグやカテゴリを導入するの改善" }),
+      baseIssue({ number: 2, title: "未実装テーマの整備" })
+    ];
+
+    const result = filterDailyPlanCandidateIssues(issues, {
+      completedThemes: ["タグやカテゴリを導入する"],
+      openTaskIssues: [],
+      recentClosedTaskIssues: []
+    });
+
+    expect(result.map((issue) => issue.number)).toEqual([2]);
+  });
+
+  it("open/closed Task issue と重複する候補を除外する", () => {
+    const issues = [
+      baseIssue({ number: 1, title: "Task issue のクローズ運用を強化" }),
+      baseIssue({ number: 2, title: "新しい改善候補を作る" }),
+      baseIssue({ number: 3, title: "既存の完了済み運用を再提案" }),
+      baseIssue({ number: 4, title: "task 自体は候補にしない", labels: ["task"] })
+    ];
+
+    const result = filterDailyPlanCandidateIssues(issues, {
+      completedThemes: [],
+      openTaskIssues: [{ title: "Task issue のクローズ運用" }],
+      recentClosedTaskIssues: [{ title: "完了済み運用" }]
+    });
+
+    expect(result.map((issue) => issue.number)).toEqual([2]);
+  });
+});
+
+describe("prioritizeDailyPlanCandidateIssues", () => {
+  const issue = (number, title, updatedAt) => ({
+    number,
+    title,
+    body: "",
+    labels: ["goal"],
+    updatedAt,
+    url: `https://github.com/example/repo/issues/${number}`
+  });
+
+  it("優先順位ルール（運用の穴→品質→Phase2→その他→Phase3/4）で並び替える", () => {
+    const candidates = [
+      issue(1, "Phase 3 の機能追加を進める", "2026-05-05T00:00:00Z"),
+      issue(2, "lint とテスト整備を進める", "2026-05-04T00:00:00Z"),
+      issue(3, "Task issue のクローズ運用を整える", "2026-05-03T00:00:00Z"),
+      issue(4, "改善サイクルの基準を固定する", "2026-05-02T00:00:00Z"),
+      issue(5, "通常の改善候補", "2026-05-01T00:00:00Z")
+    ];
+
+    const result = prioritizeDailyPlanCandidateIssues(candidates);
+    expect(result.map((item) => item.number)).toEqual([3, 2, 4, 5, 1]);
+  });
+
+  it("同優先度では更新日が古い候補を先にする", () => {
+    const candidates = [
+      issue(11, "lint ルールの見直し", "2026-05-06T00:00:00Z"),
+      issue(10, "テスト方針を整える", "2026-05-01T00:00:00Z")
+    ];
+
+    const result = prioritizeDailyPlanCandidateIssues(candidates);
+    expect(result.map((item) => item.number)).toEqual([10, 11]);
+  });
+});
+
+describe("formatCloseRecommendedTaskIssues", () => {
+  it("対象がなければ '(なし)' を返す", () => {
+    expect(formatCloseRecommendedTaskIssues([])).toBe("(なし)");
+  });
+
+  it("棚卸しセクション向けの回帰フォーマットを返す", () => {
+    const issues = [
+      {
+        number: 21,
+        title: "タグやカテゴリを導入する運用タスク",
+        labels: ["task"],
+        updatedAt: "2026-05-01T00:00:00Z",
+        url: "https://github.com/example/repo/issues/21"
+      }
+    ];
+    const result = formatCloseRecommendedTaskIssues(issues);
+    expect(result).toBe("#21 タグやカテゴリを導入する運用タスク — README/PLAN の完了済みテーマと一致");
+  });
+});
+
+describe("findCloseRecommendedTaskIssues", () => {
+  it("README/PLAN の完了済みテーマに一致する open task issue を返す", () => {
+    const openTaskIssues = [
+      {
+        number: 30,
+        title: "タグやカテゴリを導入する運用タスク",
+        body: "",
+        labels: ["task"],
+        updatedAt: "2026-05-01T00:00:00Z",
+        url: "https://github.com/example/repo/issues/30"
+      },
+      {
+        number: 31,
+        title: "未実装テーマの着手",
+        body: "",
+        labels: ["task"],
+        updatedAt: "2026-05-01T00:00:00Z",
+        url: "https://github.com/example/repo/issues/31"
+      }
+    ];
+
+    const result = findCloseRecommendedTaskIssues(openTaskIssues, ["タグやカテゴリを導入する"]);
+    expect(result.map((item) => item.number)).toEqual([30]);
+  });
+});
+
+describe("formatDailyPlanCandidateIssues", () => {
+  it("候補がなければ '(なし)' を返す", () => {
+    expect(formatDailyPlanCandidateIssues([])).toBe("(なし)");
   });
 });
 
