@@ -14,8 +14,8 @@
 - "棚卸し" および "実装済みの可能性がある Task Issues" に挙げた issue のテーマは改善候補として提案しない。ただし、まだ実装されていないと判断できる場合は提案してよい。
 - "最近クローズされた Task Issues" に挙がった issue のテーマは改善候補として提案しない。これらはすでに実装済みであり、同じ論点が日次提案に再登場しないようにする。
 - "README/PLAN 完了済みテーマ一覧" に挙がったテーマは改善候補として提案しない。これらは README または PLAN で ✅ マーク済みであり、実装完了とみなす。
-- "コード判定: クローズ推奨 Task Issues" は scripts 側で README/PLAN 完了テーマと照合済みである。棚卸しセクション作成時はこの判定結果を優先して反映する。
-- "コード判定: 候補 issue（除外・優先順位適用後）" は scripts 側で README/PLAN 完了テーマ除外・open/closed Task issue 除外・優先順位ルール適用済みである。候補選定時はこの一覧を優先して参照する。
+- "コード判定: クローズ推奨 Task Issues" は `scripts/create-daily-plan-issue.mjs`（`findCloseRecommendedTaskIssues`）で README/PLAN 完了テーマと照合済みである。棚卸しセクション作成時はこの判定結果を優先して反映する。
+- "コード判定: 候補 issue（除外・優先順位適用後）" は `scripts/create-daily-plan-issue.mjs`（`filterDailyPlanCandidateIssues` + `prioritizeDailyPlanCandidateIssues`）で README/PLAN 完了テーマ除外・open/closed Task issue 除外・優先順位ルール適用済みである。候補選定時はこの一覧を優先して参照する。
 - secrets や token の値は絶対に書かない。
 - 外部参照は行わず、渡された文脈だけで判断する。
 - 「今日の要望」が指定されている場合は、その内容を最優先で反映し、候補の方向性や選定に活かす。

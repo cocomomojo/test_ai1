@@ -1,6 +1,8 @@
 const COMPLETED_MARKER = "✅";
 const COMPLETED_HEADING_KEYWORD = "完了";
 const MIN_MATCH_LENGTH = 6;
+const DEFAULT_DAILY_PLAN_PRIORITY = 3;
+// PLAN.md Section 10 の優先順位ルールをキーワードに落とした判定テーブル。
 const DAILY_PLAN_PRIORITY_KEYWORDS = {
   operations: [
     "クローズ",
@@ -13,6 +15,19 @@ const DAILY_PLAN_PRIORITY_KEYWORDS = {
   quality: ["品質", "テスト", "型安全", "lint", "回帰", "検証"],
   phase2: ["phase 2", "改善サイクル", "plan-first", "dod", "task issue", "instructions", "skills"],
   phase34: ["phase 3", "phase 4", "タグ", "カテゴリ", "検索", "フィルタ", "デザイン", "機能追加"]
+};
+const NORMALIZED_DAILY_PLAN_PRIORITY_KEYWORDS = {
+  operations: DAILY_PLAN_PRIORITY_KEYWORDS.operations.map(normalizeComparableText),
+  quality: DAILY_PLAN_PRIORITY_KEYWORDS.quality.map(normalizeComparableText),
+  phase2: DAILY_PLAN_PRIORITY_KEYWORDS.phase2.map(normalizeComparableText),
+  phase34: DAILY_PLAN_PRIORITY_KEYWORDS.phase34.map(normalizeComparableText)
+};
+const DAILY_PLAN_PRIORITY_TEXT = {
+  0: "運用の穴",
+  1: "品質改善",
+  2: "Phase 2 定着",
+  [DEFAULT_DAILY_PLAN_PRIORITY]: "その他改善",
+  4: "Phase 3/4 拡張"
 };
 
 /**
@@ -383,11 +398,9 @@ export function prioritizeDailyPlanCandidateIssues(candidates) {
       return leftPriority - rightPriority;
     }
 
-    const leftUpdatedAt = Date.parse(left.updatedAt ?? "");
-    const rightUpdatedAt = Date.parse(right.updatedAt ?? "");
-    const leftTimestamp = Number.isNaN(leftUpdatedAt) ? Number.MAX_SAFE_INTEGER : leftUpdatedAt;
-    const rightTimestamp = Number.isNaN(rightUpdatedAt) ? Number.MAX_SAFE_INTEGER : rightUpdatedAt;
-
+    const leftTimestamp = parseUpdatedAtOrMax(left.updatedAt);
+    const rightTimestamp = parseUpdatedAtOrMax(right.updatedAt);
+    // 更新日が不明な候補は Number.MAX_SAFE_INTEGER 扱いになり比較末尾に寄る。
     if (leftTimestamp !== rightTimestamp) {
       return leftTimestamp - rightTimestamp;
     }
@@ -429,59 +442,92 @@ export function formatDailyPlanCandidateIssues(issues) {
     .map((issue) => {
       const priority = classifyDailyPlanPriority(issue);
       const priorityText =
-        priority === 0
-          ? "運用の穴"
-          : priority === 1
-            ? "品質改善"
-            : priority === 2
-              ? "Phase 2 定着"
-              : priority === 3
-                ? "その他改善"
-                : "Phase 3/4 拡張";
+        DAILY_PLAN_PRIORITY_TEXT[priority] ?? DAILY_PLAN_PRIORITY_TEXT[DEFAULT_DAILY_PLAN_PRIORITY];
 
       return `#${issue.number} ${issue.title} (優先: ${priorityText}, 更新: ${issue.updatedAt?.slice(0, 10) ?? "不明"})`;
     })
     .join("\n");
 }
 
+/**
+ * Classifies a candidate issue according to PLAN.md Section 10 priority rules.
+ *
+ * @param {{title: string, body?: string}} issue
+ * @returns {0 | 1 | 2 | 3 | 4}
+ */
 function classifyDailyPlanPriority(issue) {
   const normalizedSource = normalizeComparableText(`${issue.title} ${issue.body ?? ""}`);
 
-  if (hasPriorityKeyword(normalizedSource, DAILY_PLAN_PRIORITY_KEYWORDS.operations)) {
+  if (hasPriorityKeyword(normalizedSource, NORMALIZED_DAILY_PLAN_PRIORITY_KEYWORDS.operations)) {
     return 0;
   }
 
-  if (hasPriorityKeyword(normalizedSource, DAILY_PLAN_PRIORITY_KEYWORDS.quality)) {
+  if (hasPriorityKeyword(normalizedSource, NORMALIZED_DAILY_PLAN_PRIORITY_KEYWORDS.quality)) {
     return 1;
   }
 
-  if (hasPriorityKeyword(normalizedSource, DAILY_PLAN_PRIORITY_KEYWORDS.phase2)) {
+  if (hasPriorityKeyword(normalizedSource, NORMALIZED_DAILY_PLAN_PRIORITY_KEYWORDS.phase2)) {
     return 2;
   }
 
-  if (hasPriorityKeyword(normalizedSource, DAILY_PLAN_PRIORITY_KEYWORDS.phase34)) {
+  if (hasPriorityKeyword(normalizedSource, NORMALIZED_DAILY_PLAN_PRIORITY_KEYWORDS.phase34)) {
     return 4;
   }
 
-  return 3;
+  return DEFAULT_DAILY_PLAN_PRIORITY;
 }
 
+/**
+ * Checks whether normalized source text includes any normalized priority keyword.
+ * minimumLength=2 allows short markers such as "dod" while still avoiding noise.
+ *
+ * @param {string} source
+ * @param {string[]} keywords
+ * @returns {boolean}
+ */
 function hasPriorityKeyword(source, keywords) {
-  return keywords.some((keyword) => includesComparable(source, normalizeComparableText(keyword), 2));
+  return keywords.some((keyword) => includesComparable(source, keyword, 2));
 }
 
+/**
+ * Performs length-gated substring matching on normalized texts.
+ *
+ * @param {string} source
+ * @param {string} target
+ * @param {number} minimumLength
+ * @returns {boolean}
+ */
 function includesComparable(source, target, minimumLength = MIN_MATCH_LENGTH) {
-  if (source.length < minimumLength || target.length < minimumLength) {
+  if (target.length < minimumLength) {
     return false;
   }
 
-  return source.includes(target) || target.includes(source);
+  return source.includes(target);
 }
 
+/**
+ * Normalizes free-form text for fuzzy comparison.
+ * Lowercases the text, drops non-letter/number characters, and compacts whitespace.
+ *
+ * @param {string} value
+ * @returns {string}
+ */
 function normalizeComparableText(value) {
   return (value ?? "")
     .toLowerCase()
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+/**
+ * Parses an ISO date string and returns a sortable timestamp.
+ * Missing/invalid dates are mapped to Number.MAX_SAFE_INTEGER so they sort last.
+ *
+ * @param {string | undefined} updatedAt
+ * @returns {number}
+ */
+function parseUpdatedAtOrMax(updatedAt) {
+  const parsed = Date.parse(updatedAt ?? "");
+  return Number.isNaN(parsed) ? Number.MAX_SAFE_INTEGER : parsed;
 }

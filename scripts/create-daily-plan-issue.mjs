@@ -36,6 +36,13 @@ const recentClosedIssues = listIssues("closed", 10);
 const staleTaskIssues = classifyStaleTaskIssues(openIssues);
 const openTaskIssues = filterTaskIssues(openIssues);
 const recentClosedTaskIssues = filterClosedTaskIssues(recentClosedIssues);
+const existingIssue = openIssues.find((issue) => issue.title === title);
+
+if (existingIssue) {
+  console.log(`Skipped: ${existingIssue.url}`);
+  process.exit(0);
+}
+
 const readmeContent = readWorkspaceFile("README.md");
 const planContent = readWorkspaceFile("PLAN.md");
 const completedThemes = [
@@ -50,12 +57,6 @@ const candidateIssues = prioritizeDailyPlanCandidateIssues(
     recentClosedTaskIssues
   })
 );
-const existingIssue = openIssues.find((issue) => issue.title === title);
-
-if (existingIssue) {
-  console.log(`Skipped: ${existingIssue.url}`);
-  process.exit(0);
-}
 
 const prompt = buildPrompt({
   repository,

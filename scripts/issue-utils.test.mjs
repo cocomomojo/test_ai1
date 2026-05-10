@@ -406,6 +406,7 @@ describe("prioritizeDailyPlanCandidateIssues", () => {
   });
 
   it("優先順位ルール（運用の穴→品質→Phase2→その他→Phase3/4）で並び替える", () => {
+    // PLAN.md Section 10 の優先順位ルールを検証する回帰テスト。
     const candidates = [
       issue(1, "Phase 3 の機能追加を進める", "2026-05-05T00:00:00Z"),
       issue(2, "lint とテスト整備を進める", "2026-05-04T00:00:00Z"),
@@ -478,6 +479,31 @@ describe("findCloseRecommendedTaskIssues", () => {
 describe("formatDailyPlanCandidateIssues", () => {
   it("候補がなければ '(なし)' を返す", () => {
     expect(formatDailyPlanCandidateIssues([])).toBe("(なし)");
+  });
+
+  it("候補がある場合は優先度と更新日を含む行を返す", () => {
+    const candidates = [
+      {
+        number: 50,
+        title: "Task issue のクローズ運用を整える",
+        body: "",
+        labels: ["goal"],
+        updatedAt: "2026-05-01T00:00:00Z",
+        url: "https://github.com/example/repo/issues/50"
+      },
+      {
+        number: 51,
+        title: "Phase 3 の機能追加を進める",
+        body: "",
+        labels: ["goal"],
+        updatedAt: undefined,
+        url: "https://github.com/example/repo/issues/51"
+      }
+    ];
+
+    const result = formatDailyPlanCandidateIssues(candidates);
+    expect(result).toContain("#50 Task issue のクローズ運用を整える (優先: 運用の穴, 更新: 2026-05-01)");
+    expect(result).toContain("#51 Phase 3 の機能追加を進める (優先: Phase 3/4 拡張, 更新: 不明)");
   });
 });
 
