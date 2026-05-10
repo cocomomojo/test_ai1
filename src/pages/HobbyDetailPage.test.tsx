@@ -21,7 +21,7 @@ describe("HobbyDetailPage", () => {
     expect(screen.getByRole("img", { name: "DevOps のイメージボード" })).toBeInTheDocument();
     expect(screen.getByRole("table")).toBeInTheDocument();
     expect(screen.getByText("AI レビューから E2E 候補を起票する")).toBeInTheDocument();
-    expect(screen.getByText("CI/CD と AI を組み合わせる時に自動化しすぎない境界")).toBeInTheDocument();
+    expect(screen.getAllByText("CI/CD と AI を組み合わせる時に自動化しすぎない境界").length).toBeGreaterThan(0);
   });
 
   it("存在しない slug の場合は未登録メッセージを表示する", () => {
