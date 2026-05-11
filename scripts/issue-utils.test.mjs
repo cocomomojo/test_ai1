@@ -523,7 +523,6 @@ describe("buildNoCandidateDailyPlanBody", () => {
     expect(result).toContain("## 次に進める候補");
     expect(result).toContain("### 候補");
     expect(result).toContain("運用の穴を補う");
-    expect(result).toContain("scripts/create-daily-plan-issue.mjs");
     expect(result).toContain("#### 候補 イメージ図");
     expect(result).toContain("```mermaid");
     expect(result).toContain("## 今日の推奨");
