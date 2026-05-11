@@ -297,6 +297,26 @@ describe("getArticleBySlug", () => {
     expect(article?.sections).toHaveLength(5);
   });
 
+  it("ランニングのシューズ記録記事を取得できる", () => {
+    const article = getArticleBySlug("running", "shoe-switch-sensory-memo");
+    expect(article).toBeDefined();
+    expect(article?.title).toBe("シューズを替えた日の感覚メモの残し方");
+    expect(article?.date).toBe("2026-05-11");
+  });
+
+  it("シューズ記録記事に5つのセクションが含まれる", () => {
+    const article = getArticleBySlug("running", "shoe-switch-sensory-memo");
+    expect(article?.sections).toHaveLength(5);
+  });
+
+  it("条件固定セクションに6列の記録テーブルが含まれる", () => {
+    const article = getArticleBySlug("running", "shoe-switch-sensory-memo");
+    const section = article?.sections.find((s) => s.heading === "差分をシューズに寄せるための条件固定表");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("シューズ");
+    expect(section?.table?.rows).toHaveLength(3);
+  });
+
   it("条件固定セクションに4行の固定項目テーブルが含まれる", () => {
     const article = getArticleBySlug("coffee", "same-beans-different-tools");
     const section = article?.sections.find((s) => s.heading === "条件を固定して差分だけを見る");
