@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 
 import {
+  buildNoCandidateDailyPlanBody,
   classifyStaleTaskIssues,
   compactText,
   extractCompletedThemes,
@@ -58,23 +59,33 @@ const candidateIssues = prioritizeDailyPlanCandidateIssues(
   })
 );
 
-const prompt = buildPrompt({
-  repository,
-  planDate,
-  openIssues,
-  recentClosedIssues,
-  staleTaskIssues,
-  openTaskIssues,
-  recentClosedTaskIssues,
-  closeRecommendedTaskIssues,
-  candidateIssues,
-  readmeContent,
-  planContent,
-  completedThemes,
-  request
-});
-
-const generatedBody = normalizeGeneratedBody(generateIssueBody(prompt));
+const generatedBody =
+  candidateIssues.length === 0
+    ? buildNoCandidateDailyPlanBody({
+        closeRecommendedTaskIssues,
+        openTaskIssues,
+        staleTaskIssues,
+        completedThemes
+      })
+    : normalizeGeneratedBody(
+        generateIssueBody(
+          buildPrompt({
+            repository,
+            planDate,
+            openIssues,
+            recentClosedIssues,
+            staleTaskIssues,
+            openTaskIssues,
+            recentClosedTaskIssues,
+            closeRecommendedTaskIssues,
+            candidateIssues,
+            readmeContent,
+            planContent,
+            completedThemes,
+            request
+          })
+        )
+      );
 const issueBody = [
   "## 自動生成メモ",
   `- 実行日: ${planDate}`,
