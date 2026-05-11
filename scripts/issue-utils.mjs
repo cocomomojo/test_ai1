@@ -450,6 +450,62 @@ export function formatDailyPlanCandidateIssues(issues) {
 }
 
 /**
+ * Builds a deterministic daily-plan body when no candidate issue is available.
+ * This prevents "no candidate" days from producing an empty or unstable proposal.
+ *
+ * @param {object} context
+ * @param {Array<{number: number, title: string}>} context.closeRecommendedTaskIssues
+ * @param {Array<{number: number}>} context.openTaskIssues
+ * @param {Array<{number: number}>} context.staleTaskIssues
+ * @param {string[]} context.completedThemes
+ * @returns {string}
+ */
+export function buildNoCandidateDailyPlanBody({
+  closeRecommendedTaskIssues,
+  openTaskIssues,
+  staleTaskIssues,
+  completedThemes
+}) {
+  const inventorySection = formatCloseRecommendedTaskIssues(closeRecommendedTaskIssues);
+  const statusLines = buildNoCandidateStatusLines({
+    openTaskIssues,
+    staleTaskIssues,
+    closeRecommendedTaskIssues,
+    completedThemes
+  });
+
+  return [
+    "## 棚卸し: クローズ推奨 Task Issues",
+    inventorySection,
+    "",
+    "## 今日の状況",
+    ...statusLines,
+    "",
+    "## 次に進める候補",
+    "### 候補",
+    "- 目的: 日次 plan issue で候補 issue が 0 件の日でも、棚卸しと次の一手を一貫した基準で提示できるようにする。",
+    "- 主な変更点: `scripts/create-daily-plan-issue.mjs` に「候補なし」時の分岐を追加し、README / PLAN の優先順位ルールに沿った代替提案文面を実装する。あわせて `.github/prompts/daily-plan-issue.prompt.md` の指示と整合させ、候補ゼロ時の出力を固定するテストを追加する。",
+    "- 必要なテスト: 候補 issue が空、棚卸し対象が空/ありの両ケースで issue 本文が崩れず、所定セクションと優先順位に従った候補が出ることを確認するテスト。",
+    "- リスク: 代替提案が広すぎると Section 10 の「1サイクルで完結」「DoD 明確」を外しやすいため、提案文面と選定条件を絞る必要がある。",
+    "",
+    "#### 候補 イメージ図",
+    "```mermaid",
+    "flowchart TD",
+    "    A[日次 plan 生成開始] --> B{候補 issue あり}",
+    "    B -- はい --> C[既存ルールで候補を優先順位付け]",
+    "    B -- いいえ --> D[棚卸し対象と完了済みテーマを確認]",
+    "    D --> E[運用の穴を補う代替候補を生成]",
+    "    C --> F[issue本文を出力]",
+    "    E --> F",
+    "```",
+    "",
+    "## 今日の推奨",
+    "- 今回は `コード判定: 候補 issue（除外・優先順位適用後）` が空で、open Task issue との重複もないため、Section 10 の選定基準のうち「重複なし」「1サイクルで完結」「完了判定可能」を満たす運用改善を選ぶのが妥当です。",
+    "- また、この候補は優先順位ルール 1 の「運用の穴を補う変更」に該当し、品質改善や Phase 3/4 の機能追加より先に着手すべきテーマです。"
+  ].join("\n");
+}
+
+/**
  * Classifies a candidate issue according to PLAN.md Section 10 priority rules.
  *
  * @param {{title: string, body?: string}} issue
@@ -530,4 +586,32 @@ function normalizeComparableText(value) {
 function parseUpdatedAtOrMax(updatedAt) {
   const parsed = Date.parse(updatedAt ?? "");
   return Number.isNaN(parsed) ? Number.MAX_SAFE_INTEGER : parsed;
+}
+
+function buildNoCandidateStatusLines({
+  openTaskIssues,
+  staleTaskIssues,
+  closeRecommendedTaskIssues,
+  completedThemes
+}) {
+  if (
+    openTaskIssues.length === 0 &&
+    staleTaskIssues.length === 0 &&
+    closeRecommendedTaskIssues.length === 0
+  ) {
+    return [
+      "- open Task Issues、14日以上更新のない task issue、コード判定のクローズ推奨 Task Issues はいずれもありません。"
+    ];
+  }
+
+  return [
+    `- open Task Issues は ${openTaskIssues.length} 件です。`,
+    `- 14日以上更新のない task issue は ${staleTaskIssues.length} 件です。`,
+    closeRecommendedTaskIssues.length === 0
+      ? "- コード判定のクローズ推奨 Task Issues はありません。"
+      : `- コード判定のクローズ推奨 Task Issues は ${closeRecommendedTaskIssues.length} 件です。棚卸しセクションで優先確認します。`,
+    completedThemes.length === 0
+      ? "- README / PLAN の完了済みテーマ一覧は空です。"
+      : `- README / PLAN の完了済みテーマは ${completedThemes.length} 件あり、候補選定から除外済みです。`
+  ];
 }

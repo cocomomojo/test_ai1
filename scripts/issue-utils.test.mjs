@@ -3,6 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  buildNoCandidateDailyPlanBody,
   classifyStaleTaskIssues,
   compactText,
   extractCompletedThemes,
@@ -504,6 +505,50 @@ describe("formatDailyPlanCandidateIssues", () => {
     const result = formatDailyPlanCandidateIssues(candidates);
     expect(result).toContain("#50 Task issue のクローズ運用を整える (優先: 運用の穴, 更新: 2026-05-01)");
     expect(result).toContain("#51 Phase 3 の機能追加を進める (優先: Phase 3/4 拡張, 更新: 不明)");
+  });
+});
+
+describe("buildNoCandidateDailyPlanBody", () => {
+  it("候補が空かつ棚卸し対象が空でも、必要セクションを崩さず固定候補を返す", () => {
+    const result = buildNoCandidateDailyPlanBody({
+      closeRecommendedTaskIssues: [],
+      openTaskIssues: [],
+      staleTaskIssues: [],
+      completedThemes: []
+    });
+
+    expect(result).toContain("## 棚卸し: クローズ推奨 Task Issues");
+    expect(result).toContain("(なし)");
+    expect(result).toContain("## 今日の状況");
+    expect(result).toContain("## 次に進める候補");
+    expect(result).toContain("### 候補");
+    expect(result).toContain("運用の穴を補う");
+    expect(result).toContain("#### 候補 イメージ図");
+    expect(result).toContain("```mermaid");
+    expect(result).toContain("## 今日の推奨");
+  });
+
+  it("棚卸し対象がある場合はクローズ推奨 issue と件数を本文に反映する", () => {
+    const result = buildNoCandidateDailyPlanBody({
+      closeRecommendedTaskIssues: [
+        {
+          number: 12,
+          title: "Task issue のクローズ運用を整える",
+          labels: ["task"],
+          updatedAt: "2026-05-01T00:00:00Z",
+          url: "https://github.com/example/repo/issues/12"
+        }
+      ],
+      openTaskIssues: [{ number: 12 }],
+      staleTaskIssues: [{ number: 12 }],
+      completedThemes: ["タグやカテゴリを導入する"]
+    });
+
+    expect(result).toContain(
+      "#12 Task issue のクローズ運用を整える — README/PLAN の完了済みテーマと一致"
+    );
+    expect(result).toContain("コード判定のクローズ推奨 Task Issues は 1 件です。");
+    expect(result).toContain("README / PLAN の完了済みテーマは 1 件あり");
   });
 });
 
