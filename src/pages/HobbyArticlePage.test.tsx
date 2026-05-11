@@ -118,6 +118,23 @@ describe("HobbyArticlePage", () => {
     expect(screen.getByText("後味")).toBeInTheDocument();
   });
 
+  it("ランニングのシューズ記録記事を表示する", () => {
+    renderArticle("/hobbies/running/articles/shoe-switch-sensory-memo");
+
+    expect(screen.getByRole("heading", { name: "シューズを替えた日の感覚メモの残し方" })).toBeInTheDocument();
+    expect(screen.getByText("2026-05-11")).toBeInTheDocument();
+  });
+
+  it("シューズ記録記事の条件固定表と週次比較表を表示する", () => {
+    renderArticle("/hobbies/running/articles/shoe-switch-sensory-memo");
+
+    expect(screen.getByText("差分をシューズに寄せるための条件固定表")).toBeInTheDocument();
+    expect(screen.getByText("ルート")).toBeInTheDocument();
+    expect(screen.getByText("翌朝評価")).toBeInTheDocument();
+    expect(screen.getByText("週末は現行/新しいシューズを同じ観点で比較する")).toBeInTheDocument();
+    expect(screen.getByText("観点")).toBeInTheDocument();
+  });
+
   it("ウォーキングの3行メモ記事を表示する", () => {
     renderArticle("/hobbies/walking/articles/green-route-mood-memo");
 
