@@ -16,6 +16,7 @@
 - "README/PLAN 完了済みテーマ一覧" に挙がったテーマは改善候補として提案しない。これらは README または PLAN で ✅ マーク済みであり、実装完了とみなす。
 - "コード判定: クローズ推奨 Task Issues" は `scripts/create-daily-plan-issue.mjs`（`findCloseRecommendedTaskIssues`）で README/PLAN 完了テーマと照合済みである。棚卸しセクション作成時はこの判定結果を優先して反映する。
 - "コード判定: 候補 issue（除外・優先順位適用後）" は `scripts/create-daily-plan-issue.mjs`（`filterDailyPlanCandidateIssues` + `prioritizeDailyPlanCandidateIssues`）で README/PLAN 完了テーマ除外・open/closed Task issue 除外・優先順位ルール適用済みである。候補選定時はこの一覧を優先して参照する。
+- 日次自動生成 issue（`日次プラン提案 YYYY-MM-DD` / `日次コンテンツ下書き YYYY-MM-DD` で、生成元メモまたは `plan-first` ラベルを持つもの）は改善候補から除外する。
 - secrets や token の値は絶対に書かない。
 - 外部参照は行わず、渡された文脈だけで判断する。
 - 「今日の要望」が指定されている場合は、その内容を最優先で反映し、候補の方向性や選定に活かす。

@@ -394,6 +394,32 @@ describe("filterDailyPlanCandidateIssues", () => {
 
     expect(result.map((issue) => issue.number)).toEqual([2]);
   });
+
+  it("日次自動生成 issue（plan/content draft）を候補から除外する", () => {
+    const issues = [
+      baseIssue({
+        number: 1,
+        title: "日次プラン提案 2026-05-12",
+        body: "## 自動生成メモ\n- 生成元: GitHub Actions / Daily Plan Issue",
+        labels: ["plan-first"]
+      }),
+      baseIssue({
+        number: 2,
+        title: "日次コンテンツ下書き 2026-05-12",
+        body: "## 自動生成メモ\n- 生成元: GitHub Actions / Daily Content Draft Issue",
+        labels: ["plan-first"]
+      }),
+      baseIssue({ number: 3, title: "通常の改善候補を進める" })
+    ];
+
+    const result = filterDailyPlanCandidateIssues(issues, {
+      completedThemes: [],
+      openTaskIssues: [],
+      recentClosedTaskIssues: []
+    });
+
+    expect(result.map((issue) => issue.number)).toEqual([3]);
+  });
 });
 
 describe("prioritizeDailyPlanCandidateIssues", () => {
@@ -428,6 +454,25 @@ describe("prioritizeDailyPlanCandidateIssues", () => {
 
     const result = prioritizeDailyPlanCandidateIssues(candidates);
     expect(result.map((item) => item.number)).toEqual([10, 11]);
+  });
+
+  it("日次自動生成 issue が混在しても並び替え前に除外する", () => {
+    const candidates = [
+      issue(40, "日次プラン提案 2026-05-12", "2026-05-01T00:00:00Z"),
+      issue(10, "テスト方針を整える", "2026-05-01T00:00:00Z"),
+      issue(11, "Task issue のクローズ運用を整える", "2026-05-02T00:00:00Z")
+    ].map((item) =>
+      item.number === 40
+        ? {
+            ...item,
+            body: "## 自動生成メモ\n- 生成元: GitHub Actions / Daily Plan Issue",
+            labels: ["plan-first"]
+          }
+        : item
+    );
+
+    const result = prioritizeDailyPlanCandidateIssues(candidates);
+    expect(result.map((item) => item.number)).toEqual([11, 10]);
   });
 });
 
@@ -549,6 +594,38 @@ describe("buildNoCandidateDailyPlanBody", () => {
     );
     expect(result).toContain("コード判定のクローズ推奨 Task Issues は 1 件です。");
     expect(result).toContain("README / PLAN の完了済みテーマは 1 件あり");
+  });
+
+  it("日次自動生成 issue だけの入力でも候補なし分岐の本文を安定して生成できる", () => {
+    const onlyDailyIssues = [
+      {
+        number: 90,
+        title: "日次プラン提案 2026-05-12",
+        body: "## 自動生成メモ\n- 生成元: GitHub Actions / Daily Plan Issue",
+        labels: ["plan-first"],
+        updatedAt: "2026-05-12T00:00:00Z",
+        url: "https://github.com/example/repo/issues/90"
+      }
+    ];
+    const candidates = prioritizeDailyPlanCandidateIssues(
+      filterDailyPlanCandidateIssues(onlyDailyIssues, {
+        completedThemes: [],
+        openTaskIssues: [],
+        recentClosedTaskIssues: []
+      })
+    );
+
+    expect(candidates).toEqual([]);
+
+    const body = buildNoCandidateDailyPlanBody({
+      closeRecommendedTaskIssues: [],
+      openTaskIssues: [],
+      staleTaskIssues: [],
+      completedThemes: []
+    });
+
+    expect(body).toContain("## 次に進める候補");
+    expect(body).toContain("運用の穴を補う代替候補");
   });
 });
 
