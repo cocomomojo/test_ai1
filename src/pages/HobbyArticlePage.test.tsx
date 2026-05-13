@@ -14,6 +14,32 @@ function renderArticle(path: string) {
 }
 
 describe("HobbyArticlePage", () => {
+  it("DIY の工具選びと代用品の記事を表示する", () => {
+    renderArticle("/hobbies/diy/articles/tool-selection-and-substitutes");
+
+    expect(screen.getByRole("heading", { name: "買い足しを増やしすぎない工具の選び方と代用品の考え方" })).toBeInTheDocument();
+    expect(screen.getByText("2026-05-12")).toBeInTheDocument();
+  });
+
+  it("工具の3区分表を表示する", () => {
+    renderArticle("/hobbies/diy/articles/tool-selection-and-substitutes");
+
+    expect(screen.getByText("必携・あると楽・代用で足りるの3区分")).toBeInTheDocument();
+    expect(screen.getByText("必携")).toBeInTheDocument();
+    expect(screen.getByText("あると楽")).toBeInTheDocument();
+    expect(screen.getByText("代用で足りる")).toBeInTheDocument();
+  });
+
+  it("作業前の5列判断表を表示する", () => {
+    renderArticle("/hobbies/diy/articles/tool-selection-and-substitutes");
+
+    expect(screen.getByText("作業前に見る判断表")).toBeInTheDocument();
+    expect(screen.getByText("買い足し判断")).toBeInTheDocument();
+    expect(screen.getByText("次回メモ")).toBeInTheDocument();
+    expect(screen.getAllByText("メジャー").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("電動ドリル").length).toBeGreaterThan(0);
+  });
+
   it("DIY の採寸テンプレ記事を表示する", () => {
     renderArticle("/hobbies/diy/articles/half-day-diy-template");
 
