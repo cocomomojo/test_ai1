@@ -292,6 +292,26 @@ describe("getArticleBySlug", () => {
     expect(article?.date).toBe("2026-05-08");
   });
 
+  it("コーヒーの定番固定見直し記事を取得できる", () => {
+    const article = getArticleBySlug("coffee", "fixed-morning-recipe-review-memo");
+    expect(article).toBeDefined();
+    expect(article?.title).toBe("朝の定番レシピを固定した後に見直すためのメモ");
+    expect(article?.date).toBe("2026-05-14");
+  });
+
+  it("定番固定見直し記事に5つのセクションが含まれる", () => {
+    const article = getArticleBySlug("coffee", "fixed-morning-recipe-review-memo");
+    expect(article?.sections).toHaveLength(5);
+  });
+
+  it("固定と観察の3列表セクションに3行テーブルが含まれる", () => {
+    const article = getArticleBySlug("coffee", "fixed-morning-recipe-review-memo");
+    const section = article?.sections.find((s) => s.heading === "固定する3項目と毎回残す観察欄");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("固定する項目");
+    expect(section?.table?.rows).toHaveLength(3);
+  });
+
   it("器具比較記事に5つのセクションが含まれる", () => {
     const article = getArticleBySlug("coffee", "same-beans-different-tools");
     expect(article?.sections).toHaveLength(5);
