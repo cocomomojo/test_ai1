@@ -444,4 +444,33 @@ describe("getArticleBySlug", () => {
     expect(section?.table?.headers).toContain("区分");
     expect(section?.table?.rows).toHaveLength(3);
   });
+
+  it("DevOps の個人 DevOps 1サイクル記事を取得できる", () => {
+    const article = getArticleBySlug("devops", "personal-devops-one-cycle");
+    expect(article).toBeDefined();
+    expect(article?.title).toBe("趣味サイトを壊さず育てるための、個人 DevOps の1サイクル");
+    expect(article?.date).toBe("2026-05-15");
+  });
+
+  it("個人 DevOps 1サイクル記事に5つのセクションが含まれる", () => {
+    const article = getArticleBySlug("devops", "personal-devops-one-cycle");
+    expect(article?.sections).toHaveLength(5);
+  });
+
+  it("個人 DevOps 1サイクル記事の工程4列表に5行が含まれる", () => {
+    const article = getArticleBySlug("devops", "personal-devops-one-cycle");
+    const section = article?.sections.find((s) => s.heading === "lint・unit test・E2E・build で壊れていないか確認する");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("工程");
+    expect(section?.table?.headers).toContain("残る成果物");
+    expect(section?.table?.rows).toHaveLength(5);
+  });
+
+  it("個人 DevOps 1サイクル記事の日次 issue セクションに3行テーブルが含まれる", () => {
+    const article = getArticleBySlug("devops", "personal-devops-one-cycle");
+    const section = article?.sections.find((s) => s.heading === "日次 issue で候補を出す");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("issue の種別");
+    expect(section?.table?.rows).toHaveLength(3);
+  });
 });
