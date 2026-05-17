@@ -508,6 +508,11 @@ export function buildNoCandidateDailyPlanBody({
     closeRecommendedTaskIssues,
     completedThemes
   });
+  const candidateLines = buildNoCandidateCandidateLines({ closeRecommendedTaskIssues, staleTaskIssues });
+  const recommendationLines = buildNoCandidateRecommendationLines({
+    closeRecommendedTaskIssues,
+    staleTaskIssues
+  });
 
   return [
     "## 棚卸し: クローズ推奨 Task Issues",
@@ -518,10 +523,7 @@ export function buildNoCandidateDailyPlanBody({
     "",
     "## 次に進める候補",
     "### 候補",
-    "- 目的: 日次 plan issue で候補 issue が 0 件の日でも、棚卸しと次の一手を一貫した基準で提示できるようにする。",
-    "- 主な変更点: `scripts/create-daily-plan-issue.mjs` に「候補なし」時の分岐を追加し、README / PLAN の優先順位ルールに沿った代替提案文面を実装する。あわせて `.github/prompts/daily-plan-issue.prompt.md` の指示と整合させ、候補ゼロ時の出力を固定するテストを追加する。",
-    "- 必要なテスト: 候補 issue が空、棚卸し対象が空/ありの両ケースで issue 本文が崩れず、所定セクションと優先順位に従った候補が出ることを確認するテスト。",
-    "- リスク: 代替提案が広すぎると Section 10 の「1サイクルで完結」「DoD 明確」を外しやすいため、提案文面と選定条件を絞る必要がある。",
+    ...candidateLines,
     "",
     "#### 候補 イメージ図",
     "```mermaid",
@@ -535,8 +537,7 @@ export function buildNoCandidateDailyPlanBody({
     "```",
     "",
     "## 今日の推奨",
-    "- 今回は `コード判定: 候補 issue（除外・優先順位適用後）` が空で、open Task issue との重複もないため、Section 10 の選定基準のうち「重複なし」「1サイクルで完結」「完了判定可能」を満たす運用改善を選ぶのが妥当です。",
-    "- また、この候補は優先順位ルール 1 の「運用の穴を補う変更」に該当し、品質改善や Phase 3/4 の機能追加より先に着手すべきテーマです。"
+    ...recommendationLines
   ].join("\n");
 }
 
@@ -648,5 +649,54 @@ function buildNoCandidateStatusLines({
     completedThemes.length === 0
       ? "- README / PLAN の完了済みテーマ一覧は空です。"
       : `- README / PLAN の完了済みテーマは ${completedThemes.length} 件あり、候補選定から除外済みです。`
+  ];
+}
+
+function buildNoCandidateCandidateLines({ closeRecommendedTaskIssues, staleTaskIssues }) {
+  if (closeRecommendedTaskIssues.length > 0) {
+    const issueRefs = closeRecommendedTaskIssues.slice(0, 3).map((i) => `#${i.number}`).join("・");
+    return [
+      `- 目的: クローズ推奨 Task Issues（${closeRecommendedTaskIssues.length} 件）を整理し、issue リストと README/PLAN の整合を保つ。`,
+      `- 主な変更点: 対象 issue を確認してクローズし、必要であればクローズコメントを添える（${issueRefs}）。`,
+      "- 必要なテスト: クローズ後に日次プラン生成を実行し、クローズ推奨セクションが「(なし)」になることを確認する。",
+      "- リスク: 誤ってクローズするとトラッキングが失われるため、README/PLAN の完了マークを必ず再確認すること。"
+    ];
+  }
+
+  if (staleTaskIssues.length > 0) {
+    return [
+      `- 目的: 14日以上更新のない Task Issues（${staleTaskIssues.length} 件）の状況を確認し、完了済みならクローズ、継続中なら進捗コメントを追加して issue 状態を正確に保つ。`,
+      "- 主な変更点: 各 stale issue を README/PLAN と照合し、完了済みのものをクローズ、継続中のものにコメントを追加する。",
+      "- 必要なテスト: 更新後に日次プラン生成を実行し、stale issue 件数が変化したことを確認する。",
+      "- リスク: 実装が完了していない issue を誤ってクローズしないよう、コードと README/PLAN の両方を確認すること。"
+    ];
+  }
+
+  return [
+    "- 目的: 日次プラン・issue ワークフロー・テンプレートの運用品質を点検し、見落とされている改善点を 1 件特定してタスク化する。",
+    "- 主な変更点: `.github/` 以下のワークフロー・テンプレート・プロンプトを現在の運用と照合し、不整合や欠落を見つけてタスク issue を立てる。",
+    "- 必要なテスト: タスク issue を立てた後、日次プラン生成で候補として正しく表示されることを確認する。",
+    "- リスク: 対象範囲が広いため、1サイクルで完結できる粒度に絞ること。"
+  ];
+}
+
+function buildNoCandidateRecommendationLines({ closeRecommendedTaskIssues, staleTaskIssues }) {
+  if (closeRecommendedTaskIssues.length > 0) {
+    return [
+      "- 今回はクローズ推奨 Task Issues が残っているため、issue リストの整理を最優先とします。",
+      "- PLAN.md Section 10 の選定基準のうち「重複なし」「1サイクル完結」「完了判定可能」を満たし、優先順位ルール 1（運用の穴を補う変更）に該当します。"
+    ];
+  }
+
+  if (staleTaskIssues.length > 0) {
+    return [
+      "- 今回は候補 issue が空であるため、stale Task Issues の見直しで運用の穴を補います。",
+      "- PLAN.md Section 10 の選定基準（1サイクル完結・完了判定可能）を満たし、優先順位ルール 1（運用の穴を補う変更）に該当します。"
+    ];
+  }
+
+  return [
+    "- 今回は候補 issue が空で、クローズ推奨・stale issue もないため、ワークフロー運用の点検を代替候補とします。",
+    "- PLAN.md Section 10 の選定基準（未実装・重複なし・1サイクル完結）を満たし、優先順位ルール 1（運用の穴を補う変更）に該当します。"
   ];
 }

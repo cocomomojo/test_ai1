@@ -25,7 +25,7 @@
   2. 品質改善（テスト追加・型安全・lint 解消）を新機能より優先する
   3. Phase 2 の定着（改善サイクルの基準・ルール整備）を Phase 3/4 の機能追加より優先する
   4. 同優先度ならば、最後の日次 plan からの経過が長いテーマを先に選ぶ
-- "コード判定: 候補 issue（除外・優先順位適用後）" が `(なし)` の場合は、新機能追加ではなく運用の穴を補う代替候補を 1 件提示し、`scripts/create-daily-plan-issue.mjs` の候補なし分岐・prompt 整合・テスト追加を主な変更点に含めること。
+- "コード判定: 候補 issue（除外・優先順位適用後）" が `(なし)` のとき、このプロンプトは呼び出されない。`scripts/create-daily-plan-issue.mjs` の `buildNoCandidateDailyPlanBody` が context に応じた代替候補（クローズ推奨 issue の整理・stale issue の見直し・運用点検）を生成する。
 - `plan-first` は issue の進め方を示すラベルであり、`Phase 0-4` は PLAN.md 上のロードマップ区分である。phase を issue ラベルとして扱わず、候補の優先度判断にのみ使うこと。
 - 提案する候補は PLAN.md Section 10 の選定基準（未実装・重複なし・1サイクル完結・DoD 明確・完了判定可能）をすべて満たすものに限定する。
 
