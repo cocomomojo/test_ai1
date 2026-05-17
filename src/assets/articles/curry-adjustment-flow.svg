@@ -1,0 +1,95 @@
+<svg width="1200" height="680" viewBox="0 0 1200 680" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="680" rx="36" fill="#1F2937"/>
+  <rect x="40" y="40" width="1120" height="600" rx="28" fill="url(#bg)"/>
+  <g opacity="0.15">
+    <circle cx="1060" cy="110" r="110" fill="#FDE68A"/>
+    <circle cx="160" cy="570" r="140" fill="#FB923C"/>
+  </g>
+  <text x="100" y="98" fill="#FFF7ED" font-family="sans-serif" font-size="34" font-weight="700">スパイス・火加減・寝かせ方の調整フロー</text>
+  <text x="100" y="134" fill="#FED7AA" font-family="sans-serif" font-size="19">気になる1点を選んで見直し、次回は調整点を1つだけ変える</text>
+
+  <!-- A: 出発点 -->
+  <g>
+    <rect x="440" y="170" width="320" height="90" rx="22" fill="#FFF7ED"/>
+    <text x="600" y="207" fill="#9A3412" font-family="sans-serif" font-size="19" font-weight="700" text-anchor="middle">作ってみて気になる点を</text>
+    <text x="600" y="234" fill="#9A3412" font-family="sans-serif" font-size="19" font-weight="700" text-anchor="middle">1つ選ぶ</text>
+  </g>
+
+  <!-- Arrow A→B -->
+  <line x1="600" y1="260" x2="600" y2="300" stroke="#FFF7ED" stroke-width="8" stroke-linecap="round"/>
+  <polygon points="600,320 588,300 612,300" fill="#FFF7ED"/>
+
+  <!-- B: 分岐 -->
+  <g>
+    <polygon points="600,325 720,385 600,445 480,385" fill="#FEF3C7" stroke="#F59E0B" stroke-width="3"/>
+    <text x="600" y="379" fill="#92400E" font-family="sans-serif" font-size="18" font-weight="700" text-anchor="middle">どこがぶれたか</text>
+    <text x="600" y="401" fill="#78350F" font-family="sans-serif" font-size="15" text-anchor="middle">1つ選んで進む</text>
+  </g>
+
+  <!-- Arrow B→C (left, 香りが弱い) -->
+  <line x1="480" y1="385" x2="200" y2="385" stroke="#FFF7ED" stroke-width="6" stroke-linecap="round"/>
+  <polygon points="175,385 200,372 200,398" fill="#FFF7ED"/>
+  <text x="330" y="372" fill="#FED7AA" font-family="sans-serif" font-size="15" text-anchor="middle">香りが弱い</text>
+
+  <!-- Arrow B→D (down, 煮詰まりすぎる) -->
+  <line x1="600" y1="445" x2="600" y2="490" stroke="#FFF7ED" stroke-width="6" stroke-linecap="round"/>
+  <polygon points="600,515 588,492 612,492" fill="#FFF7ED"/>
+  <text x="660" y="476" fill="#FED7AA" font-family="sans-serif" font-size="14">煮詰まり/</text>
+  <text x="660" y="494" fill="#FED7AA" font-family="sans-serif" font-size="14">軽すぎる</text>
+
+  <!-- Arrow B→E (right, 翌日まとまりが弱い) -->
+  <line x1="720" y1="385" x2="1000" y2="385" stroke="#FFF7ED" stroke-width="6" stroke-linecap="round"/>
+  <polygon points="1025,385 1000,372 1000,398" fill="#FFF7ED"/>
+  <text x="865" y="372" fill="#FED7AA" font-family="sans-serif" font-size="15" text-anchor="middle">翌日のまとまりが弱い</text>
+
+  <!-- C: スパイス -->
+  <g>
+    <rect x="60" y="340" width="310" height="90" rx="20" fill="#FFF7ED"/>
+    <text x="215" y="378" fill="#9A3412" font-family="sans-serif" font-size="17" font-weight="700" text-anchor="middle">スパイスの入れる</text>
+    <text x="215" y="402" fill="#9A3412" font-family="sans-serif" font-size="17" font-weight="700" text-anchor="middle">順番と量を見直す</text>
+  </g>
+
+  <!-- D: 火加減 -->
+  <g>
+    <rect x="440" y="520" width="320" height="90" rx="20" fill="#FFF7ED"/>
+    <text x="600" y="558" fill="#9A3412" font-family="sans-serif" font-size="17" font-weight="700" text-anchor="middle">火加減と水分の</text>
+    <text x="600" y="582" fill="#9A3412" font-family="sans-serif" font-size="17" font-weight="700" text-anchor="middle">飛ばし方を見直す</text>
+  </g>
+
+  <!-- E: 寝かせ方 -->
+  <g>
+    <rect x="830" y="340" width="310" height="90" rx="20" fill="#FFF7ED"/>
+    <text x="985" y="378" fill="#9A3412" font-family="sans-serif" font-size="17" font-weight="700" text-anchor="middle">寝かせ時間と</text>
+    <text x="985" y="402" fill="#9A3412" font-family="sans-serif" font-size="17" font-weight="700" text-anchor="middle">温め直し方を見直す</text>
+  </g>
+
+  <!-- F: 次回1点 -->
+  <!-- Arrow C→F -->
+  <line x1="215" y1="430" x2="215" y2="575" stroke="#FFF7ED" stroke-width="6" stroke-linecap="round"/>
+  <line x1="215" y1="575" x2="420" y2="575" stroke="#FFF7ED" stroke-width="6" stroke-linecap="round"/>
+  <polygon points="440,575 420,563 420,587" fill="#FFF7ED"/>
+
+  <!-- Arrow D→F (already in D box, no arrow needed - D IS F entry point from below) -->
+  <!-- Arrow E→F -->
+  <line x1="985" y1="430" x2="985" y2="575" stroke="#FFF7ED" stroke-width="6" stroke-linecap="round"/>
+  <line x1="985" y1="575" x2="790" y2="575" stroke="#FFF7ED" stroke-width="6" stroke-linecap="round"/>
+  <polygon points="762,575 790,563 790,587" fill="#FFF7ED"/>
+
+  <!-- Arrow F→G -->
+  <!-- F = D box, so arrow is from D box going right to G? Let me reconsider. Actually F and D need to be separate. Let me redesign slightly. The D box represents the fire adjustment. F is "次回は調整点を1つだけ変える" which all three paths converge to. Then F→G "記録を残す" -->
+
+  <!-- Actually the structure I have is problematic because D is in a different place. Let me move G below F. -->
+  <!-- Label F arrow from D's bottom -->
+  <line x1="600" y1="610" x2="600" y2="640" stroke="#FFF7ED" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Actually I need to place a G node below D. Let me just keep F at bottom of D flow and add a label. -->
+  <text x="600" y="640" fill="#ECFCCB" font-family="sans-serif" font-size="16" font-weight="700" text-anchor="middle">▼ 記録を残して再現性を上げる</text>
+
+  <defs>
+    <linearGradient id="bg" x1="40" y1="40" x2="1160" y2="640" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7C2D12"/>
+      <stop offset="0.55" stop-color="#C2410C"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+</svg>
