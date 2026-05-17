@@ -596,6 +596,20 @@ describe("buildNoCandidateDailyPlanBody", () => {
     expect(result).toContain("README / PLAN の完了済みテーマは 1 件あり");
   });
 
+  it("stale task issue がある場合は stale 向けの代替候補を本文に反映する", () => {
+    const result = buildNoCandidateDailyPlanBody({
+      closeRecommendedTaskIssues: [],
+      openTaskIssues: [{ number: 15 }],
+      staleTaskIssues: [{ number: 15 }],
+      completedThemes: []
+    });
+
+    expect(result).toContain("## 次に進める候補");
+    expect(result).toContain("14日以上更新のない Task Issues（1 件）");
+    expect(result).toContain("## 今日の推奨");
+    expect(result).toContain("stale Task Issues の見直し");
+  });
+
   it("日次自動生成 issue だけの入力でも候補なし分岐の本文を安定して生成できる", () => {
     const onlyDailyIssues = [
       {
