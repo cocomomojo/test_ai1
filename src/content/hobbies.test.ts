@@ -496,4 +496,32 @@ describe("getArticleBySlug", () => {
     expect(section?.table?.headers).toContain("issue の種別");
     expect(section?.table?.rows).toHaveLength(3);
   });
+
+  it("DevOps の preview / 本番切り分け記事を取得できる", () => {
+    const article = getArticleBySlug("devops", "preview-production-boundary-memo");
+    expect(article).toBeDefined();
+    expect(article?.title).toBe("AWS を preview 候補として足す前に、本番と確認環境をどう分けるか");
+    expect(article?.date).toBe("2026-05-18");
+  });
+
+  it("preview / 本番切り分け記事に4つのセクションが含まれる", () => {
+    const article = getArticleBySlug("devops", "preview-production-boundary-memo");
+    expect(article?.sections).toHaveLength(4);
+  });
+
+  it("本番 / preview を分ける5軸セクションに5行テーブルが含まれる", () => {
+    const article = getArticleBySlug("devops", "preview-production-boundary-memo");
+    const section = article?.sections.find((s) => s.heading === "本番 / preview を分ける5軸");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("軸");
+    expect(section?.table?.rows).toHaveLength(5);
+  });
+
+  it("PR から preview 確認セクションに6行フローテーブルが含まれる", () => {
+    const article = getArticleBySlug("devops", "preview-production-boundary-memo");
+    const section = article?.sections.find((s) => s.heading === "PR から preview 確認、merge、本番反映まで");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("工程");
+    expect(section?.table?.rows).toHaveLength(6);
+  });
 });
