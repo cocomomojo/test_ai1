@@ -207,6 +207,29 @@ describe("getArticleBySlug", () => {
     expect(article?.date).toBe("2026-04-26");
   });
 
+  it("カレーの調整メモ記事を取得できる", () => {
+    const article = getArticleBySlug("curry", "curry-spice-heat-rest-memo");
+    expect(article).toBeDefined();
+    expect(article?.title).toBe("カレーの再現性を上げる「スパイス・火加減・寝かせ方」調整メモ");
+    expect(article?.date).toBe("2026-05-16");
+    expect(article?.image?.alt).toBe(
+      "気になる点を1つ選んでスパイス・火加減・寝かせ方のどこを見直すかを示す調整フロー図"
+    );
+  });
+
+  it("調整メモ記事に6つのセクションが含まれる", () => {
+    const article = getArticleBySlug("curry", "curry-spice-heat-rest-memo");
+    expect(article?.sections).toHaveLength(6);
+  });
+
+  it("振り返り記録テンプレートセクションに3行テーブルが含まれる", () => {
+    const article = getArticleBySlug("curry", "curry-spice-heat-rest-memo");
+    const section = article?.sections.find((s) => s.heading === "今回の振り返り記録テンプレート");
+    expect(section?.table).toBeDefined();
+    expect(section?.table?.headers).toContain("評価軸");
+    expect(section?.table?.rows).toHaveLength(3);
+  });
+
   it("カレーの3段階整理記事を取得できる", () => {
     const article = getArticleBySlug("curry", "curry-three-step-stability");
     expect(article).toBeDefined();
