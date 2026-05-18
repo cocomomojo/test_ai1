@@ -179,7 +179,6 @@ function generateIssueBody(prompt) {
     prompt,
     "--silent",
     "--no-ask-user",
-    "--allow-all-tools",
     "--disable-builtin-mcps",
     "--deny-tool=shell",
     "--deny-tool=write",
