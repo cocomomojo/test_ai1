@@ -571,6 +571,8 @@ describe("buildNoCandidateDailyPlanBody", () => {
     expect(result).toContain("#### 候補 イメージ図");
     expect(result).toContain("```mermaid");
     expect(result).toContain("## 今日の推奨");
+    expect(result).toContain("候補 issue（task 以外）");
+    expect(result).not.toContain("タスク issue を立てた後");
   });
 
   it("棚卸し対象がある場合はクローズ推奨 issue と件数を本文に反映する", () => {
